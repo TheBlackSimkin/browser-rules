@@ -89,3 +89,26 @@ hentaihaven.xxx##.aloading > div[class*=" col-md-zarat "]:has(> .related-reading
 ! =====================================================
 ! *.mp4$media,domain=xvideos.com
 ! *.mp4$media,domain=xvideos.com,redirect-rule=noopmp4-1s
+
+
+! ==================================================
+! JUGABET — GLOBAL BLOCK
+! ==================================================
+
+! Block all connections to Jugabet and its subdomains
+||jugabet.com^
+||jugabet.cl^
+||jugabet.mx^
+
+! Block direct navigation to Jugabet pages
+||jugabet.com^$document
+||jugabet.cl^$document
+||jugabet.mx^$document
+
+! Close popup and popunder tabs leading to Jugabet
+||jugabet.com^$popup
+||jugabet.com^$popunder
+||jugabet.cl^$popup
+||jugabet.cl^$popunder
+||jugabet.mx^$popup
+||jugabet.mx^$popunder
