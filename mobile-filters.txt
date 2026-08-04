@@ -1,5 +1,5 @@
 [Adblock Plus 2.0]
-! Title: Personal Mobile Filters
+! Title: A - TBS - Personal Mobile Filters
 ! Description: Custom filtering rules for Vivaldi Mobile.
 ! Version: 20260804.2
 ! Last modified: 2026-08-04
