@@ -1,0 +1,134 @@
+[Adblock Plus 2.0]
+! Title: A - TBS - Personal Vivaldi Desktop Filters
+! Description: Vivaldi Desktop-compatible ad, preroll, popup and popunder rules.
+! Version: 20260804.1
+! Last modified: 2026-08-04
+! Expires: 1 day
+! Compatibility: Vivaldi Desktop 7.6 or newer.
+!
+! This desktop edition intentionally avoids uBlock-only ##+js(...) and
+! redirect-rule= syntax, because Vivaldi rejects those rules.
+! The corresponding normal network, popup and cosmetic blocks remain active.
+
+! =====================================================
+! XVIDEOS — page ads, prerolls, popups and popunders
+! =====================================================
+
+! Known first-party ad and tracking paths
+||xvideos.com/zoneload/$domain=xvideos.com
+||xvideos.com/picserror/$domain=xvideos.com
+||xvideos.com/lvcsm/abck-banners/
+
+! Known advertising provider
+||orbsrv.com^$third-party,domain=xvideos.com
+||a.orbsrv.com/ad-provider.js$script,third-party,domain=xvideos.com
+
+! In-player preroll selection
+/vast.php?idzone=$domain=xvideos.com
+
+! Third-party MP4 preroll fallback.
+! WARNING: This can also block legitimate third-party MP4 playback.
+*.mp4$media,third-party,domain=xvideos.com
+
+! Block click-triggered advertising tabs and popunders
+*$popup,domain=xvideos.com|xvideos2.com
+*$popunder,domain=xvideos.com|xvideos2.com
+
+! Hide known advertising links and containers
+xvideos.com##a[href*="/go.php?"][href*="&ad="]
+xvideos.com###video-right
+xvideos.com###video-sponsor-links
+xvideos.com###ad-footer
+xvideos.com##.player-video.xv-cams-block
+xvideos.com##.thumb-ad
+xvideos.com##.video-ad
+xvideos.com##.remove-ads > *
+xvideos.com##.e-banner-game
+xvideos.com##.top-top
+xvideos.com##[href*="base64"]
+xvideos.com##[href*="data:"]
+
+! =====================================================
+! HENTAIHAVEN — ads, VAST requests, popups and popunders
+! =====================================================
+
+! Known external advertising and redirect services
+||a.adtng.com^$third-party,domain=hentaihaven.xxx
+||havenclick.com^$third-party,domain=hentaihaven.xxx
+||ads-twitter.com^$third-party,domain=hentaihaven.xxx
+||cdn.pornhaven.ai/design/ads/$domain=hentaihaven.xxx
+||hentaihaven.icu/wp-content/plugins/sscript-manager/
+
+! Block VAST/ad-delivery requests
+||havenclick.com/www/delivery/$xhr,domain=hentaihaven.xxx
+
+! Block click-triggered advertising tabs and popunders
+*$popup,domain=hentaihaven.xxx
+*$popunder,domain=hentaihaven.xxx
+
+! Hide known advertising frames and containers
+hentaihaven.xxx##iframe[src^="https://a.adtng.com/"]
+hentaihaven.xxx##.script_manager_video_master
+hentaihaven.xxx##.vrav_a_pc
+hentaihaven.xxx##.popecrazy
+hentaihaven.xxx##.hhzt
+hentaihaven.xxx##.code-block
+hentaihaven.xxx##.aloading > div[class*=" col-md-zarat "]:has(> .related-reading-wrap > .widget-thumbnail > ins[data-revive-zoneid])
+
+! =====================================================
+! PORNHUB — third-party ads, tracking, popups and clutter
+! =====================================================
+
+! Known advertising network used on adult-video sites
+||trafficjunky.net^$third-party,domain=pornhub.com|pornhub.org|pornhub.net
+||trafficjunky.com^$third-party,domain=pornhub.com|pornhub.org|pornhub.net
+
+! First-party category tracking request
+||pornhub.com/video/category_tracker?e=$domain=pornhub.com|pornhub.org|pornhub.net
+||pornhub.org/video/category_tracker?e=$domain=pornhub.com|pornhub.org|pornhub.net
+||pornhub.net/video/category_tracker?e=$domain=pornhub.com|pornhub.org|pornhub.net
+
+! Block click-triggered advertising tabs and popunders
+*$popup,domain=pornhub.com|pornhub.org|pornhub.net
+*$popunder,domain=pornhub.com|pornhub.org|pornhub.net
+
+! Hide advertising links, frames and containers
+pornhub.com,pornhub.org,pornhub.net##a[href*="trafficjunky"]
+pornhub.com,pornhub.org,pornhub.net##iframe[src*="trafficjunky"]
+pornhub.com,pornhub.org,pornhub.net##.adContainer
+pornhub.com,pornhub.org,pornhub.net##.ad-link
+pornhub.com,pornhub.org,pornhub.net##[class*="adContainer"]
+pornhub.com,pornhub.org,pornhub.net##div[class]:has(> div > .ad-link)
+
+! Do NOT block phncdn.com or generic video/media files:
+! those hosts and files are also used for legitimate thumbnails and playback.
+
+! =====================================================
+! OPTIONAL AGGRESSIVE XVIDEOS FALLBACK
+! Leave disabled unless the preroll returns.
+! These may break legitimate playback.
+! =====================================================
+
+! *.mp4$media,domain=xvideos.com
+
+! =====================================================
+! JUGABET — COMPLETE DOMAIN BLOCK
+! =====================================================
+
+! Block all connections to Jugabet and its subdomains
+||jugabet.com^
+||jugabet.cl^
+||jugabet.mx^
+
+! Block direct navigation to Jugabet pages
+||jugabet.com^$document
+||jugabet.cl^$document
+||jugabet.mx^$document
+
+! Close popup and popunder tabs leading to Jugabet
+||jugabet.com^$popup
+||jugabet.com^$popunder
+||jugabet.cl^$popup
+||jugabet.cl^$popunder
+||jugabet.mx^$popup
+||jugabet.mx^$popunder
