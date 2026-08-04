@@ -1,14 +1,25 @@
 [Adblock Plus 2.0]
 ! Title: Personal Mobile Filters
-! Description: Conservative custom filtering rules for Vivaldi Mobile.
-! Version: 20260804.1
+! Description: Custom filtering rules for Vivaldi Mobile.
+! Version: 20260804.2
 ! Last modified: 2026-08-04
-! Expires: 7 days
-! Compatibility: Basic Adblock Plus-style rules; no uBlock Origin scriptlets.
+! Expires: 1 day
+! Compatibility: Adblock Plus-style network and cosmetic rules.
 
 ! ==================== Site group A ====================
+! XVideos: page ads, tracking and in-player preroll
 ||xvideos.com/zoneload/$domain=xvideos.com
 ||xvideos.com/picserror/$domain=xvideos.com
+||orbsrv.com^$third-party,domain=xvideos.com
+||a.orbsrv.com/ad-provider.js$script,third-party,domain=xvideos.com
+
+! Block the preroll media request.
+||aucdn.net/library/*.mp4$media,third-party,domain=xvideos.com
+
+! When supported, replace the blocked ad with a one-second neutral MP4
+! so the player can advance instead of waiting on a failed media request.
+||aucdn.net/library/*.mp4$media,third-party,domain=xvideos.com,redirect-rule=noopmp4-1s
+
 xvideos.com###video-right
 xvideos.com###video-sponsor-links
 xvideos.com###ad-footer
@@ -22,6 +33,7 @@ xvideos.com##[href*="base64"]
 xvideos.com##[href*="data:"]
 
 ! ==================== Site group B ====================
+! HentaiHaven
 ||a.adtng.com^$third-party,domain=hentaihaven.xxx
 ||cdn.pornhaven.ai/design/ads/$domain=hentaihaven.xxx
 hentaihaven.xxx##iframe[src^="https://a.adtng.com/"]
@@ -32,51 +44,10 @@ hentaihaven.xxx##.hhzt
 hentaihaven.xxx##.code-block
 hentaihaven.xxx##.aloading > div[class*=" col-md-zarat "]:has(> .related-reading-wrap > .widget-thumbnail > ins[data-revive-zoneid])
 
-! ==================== Experimental rules ====================
-! Enable only when needed by removing "! " from the beginning.
-! These rules may interfere with video playback or trigger anti-blocking checks.
-! ||aucdn.net/library/*.mp4$media,third-party,domain=xvideos.com
-! ||a.orbsrv.com/ad-provider.js$script,third-party,domain=xvideos.com
-! ||hentaihaven.xxx/wp-content/plugins/script-manager/assets/js/script-manager.js$script,domain=hentaihaven.xxx
-! ||imasdk.googleapis.com/js/sdkloader/ima3.js$script,third-party,domain=hentaihaven.xxx
-[Adblock Plus 2.0]
-! Title: Personal Mobile Filters
-! Description: Conservative custom filtering rules for Vivaldi Mobile.
-! Version: 20260804.1
-! Last modified: 2026-08-04
-! Expires: 7 days
-! Compatibility: Basic Adblock Plus-style rules; no uBlock Origin scriptlets.
-
-! ==================== Site group A ====================
-||xvideos.com/zoneload/$domain=xvideos.com
-||xvideos.com/picserror/$domain=xvideos.com
-xvideos.com###video-right
-xvideos.com###video-sponsor-links
-xvideos.com###ad-footer
-xvideos.com##.player-video.xv-cams-block
-xvideos.com##.thumb-ad
-xvideos.com##.video-ad
-xvideos.com##.remove-ads > *
-xvideos.com##.e-banner-game
-xvideos.com##.top-top
-xvideos.com##[href*="base64"]
-xvideos.com##[href*="data:"]
-
-! ==================== Site group B ====================
-||a.adtng.com^$third-party,domain=hentaihaven.xxx
-||cdn.pornhaven.ai/design/ads/$domain=hentaihaven.xxx
-hentaihaven.xxx##iframe[src^="https://a.adtng.com/"]
-hentaihaven.xxx##.script_manager_video_master
-hentaihaven.xxx##.vrav_a_pc
-hentaihaven.xxx##.popecrazy
-hentaihaven.xxx##.hhzt
-hentaihaven.xxx##.code-block
-hentaihaven.xxx##.aloading > div[class*=" col-md-zarat "]:has(> .related-reading-wrap > .widget-thumbnail > ins[data-revive-zoneid])
-
-! ==================== Experimental rules ====================
-! Enable only when needed by removing "! " from the beginning.
-! These rules may interfere with video playback or trigger anti-blocking checks.
-! ||aucdn.net/library/*.mp4$media,third-party,domain=xvideos.com
-! ||a.orbsrv.com/ad-provider.js$script,third-party,domain=xvideos.com
-! ||hentaihaven.xxx/wp-content/plugins/script-manager/assets/js/script-manager.js$script,domain=hentaihaven.xxx
-! ||imasdk.googleapis.com/js/sdkloader/ima3.js$script,third-party,domain=hentaihaven.xxx
+! ==================== Disabled fallback rules ====================
+! Enable only if the focused XVideos rules above stop working.
+! These broader rules may block unrelated third-party media or break playback.
+! ||aucdn.net^$media,third-party,domain=xvideos.com
+! ||exdynsrv.com^$third-party,domain=xvideos.com
+! ||ackcdn.net^$third-party,domain=xvideos.com
+! ||afcdn.net^$third-party,domain=xvideos.com
