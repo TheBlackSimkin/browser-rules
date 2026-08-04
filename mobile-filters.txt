@@ -1,25 +1,36 @@
 [Adblock Plus 2.0]
 ! Title: A - TBS - Personal Mobile Filters
 ! Description: Custom filtering rules for Vivaldi Mobile.
-! Version: 20260804.2
+! Version: 20260804.3
 ! Last modified: 2026-08-04
 ! Expires: 1 day
-! Compatibility: Adblock Plus-style network and cosmetic rules.
+! Compatibility: Vivaldi 7.6+ recommended; Adblock Plus and selected uBlock-style rules.
 
 ! ==================== Site group A ====================
-! XVideos: page ads, tracking and in-player preroll
+! XVideos: page ads, click-triggered popup/popunder and in-player preroll
+
+! Known first-party ad and tracking paths
 ||xvideos.com/zoneload/$domain=xvideos.com
 ||xvideos.com/picserror/$domain=xvideos.com
+||xvideos.com/lvcsm/abck-banners/
+
+! Known ad provider
 ||orbsrv.com^$third-party,domain=xvideos.com
 ||a.orbsrv.com/ad-provider.js$script,third-party,domain=xvideos.com
 
-! Block the preroll media request.
-||aucdn.net/library/*.mp4$media,third-party,domain=xvideos.com
+! Block VAST ad manifests used to select in-player prerolls
+/vast.php?idzone=$domain=xvideos.com
 
-! When supported, replace the blocked ad with a one-second neutral MP4
-! so the player can advance instead of waiting on a failed media request.
-||aucdn.net/library/*.mp4$media,third-party,domain=xvideos.com,redirect-rule=noopmp4-1s
+! Current fallback for short MP4 prerolls whose delivery host rotates.
+! Restrict to third-party media first, then replace when redirect-rule is supported.
+*.mp4$media,third-party,domain=xvideos.com
+*.mp4$media,third-party,domain=xvideos.com,redirect-rule=noopmp4-1s
 
+! Block advertising popup/popunder navigations initiated from XVideos.
+*$popup,domain=xvideos.com
+
+! Remove known advertising links and containers
+xvideos.com##a[href*="/go.php?"][href*="&ad="]
 xvideos.com###video-right
 xvideos.com###video-sponsor-links
 xvideos.com###ad-footer
@@ -31,6 +42,12 @@ xvideos.com##.e-banner-game
 xvideos.com##.top-top
 xvideos.com##[href*="base64"]
 xvideos.com##[href*="data:"]
+
+! uBlock-style scriptlets used by maintained upstream filters to suppress
+! window.open/popunder behavior and the click handler named ShouldShow.
+! Vivaldi versions without scriptlet support will ignore these lines.
+xvideos.com,xvideos2.com##+js(nowoif)
+xvideos.com,xvideos2.com##+js(aeld, click, ShouldShow)
 
 ! ==================== Site group B ====================
 ! HentaiHaven
@@ -44,10 +61,8 @@ hentaihaven.xxx##.hhzt
 hentaihaven.xxx##.code-block
 hentaihaven.xxx##.aloading > div[class*=" col-md-zarat "]:has(> .related-reading-wrap > .widget-thumbnail > ins[data-revive-zoneid])
 
-! ==================== Disabled fallback rules ====================
-! Enable only if the focused XVideos rules above stop working.
-! These broader rules may block unrelated third-party media or break playback.
-! ||aucdn.net^$media,third-party,domain=xvideos.com
-! ||exdynsrv.com^$third-party,domain=xvideos.com
-! ||ackcdn.net^$third-party,domain=xvideos.com
-! ||afcdn.net^$third-party,domain=xvideos.com
+! ==================== Optional aggressive fallback ====================
+! Leave disabled unless the five-second preroll remains.
+! This may block legitimate MP4 playback if XVideos changes its delivery format.
+! *.mp4$media,domain=xvideos.com
+! *.mp4$media,domain=xvideos.com,redirect-rule=noopmp4-1s
