@@ -1,14 +1,15 @@
 [Adblock Plus 2.0]
 ! Title: A - TBS - Personal Vivaldi Desktop Filters
 ! Description: Vivaldi Desktop-compatible ad, preroll, popup and popunder rules.
-! Version: 20260804.1
-! Last modified: 2026-08-04
+! Version: 20260805.1
+! Last modified: 2026-08-05
 ! Expires: 1 day
 ! Compatibility: Vivaldi Desktop 7.6 or newer.
 !
 ! This desktop edition intentionally avoids uBlock-only ##+js(...) and
 ! redirect-rule= syntax, because Vivaldi rejects those rules.
 ! The corresponding normal network, popup and cosmetic blocks remain active.
+
 
 ! =====================================================
 ! XVIDEOS — page ads, prerolls, popups and popunders
@@ -26,9 +27,10 @@
 ! In-player preroll selection
 /vast.php?idzone=$domain=xvideos.com
 
-! Third-party MP4 preroll fallback.
-! WARNING: This can also block legitimate third-party MP4 playback.
-*.mp4$media,third-party,domain=xvideos.com
+! Known advertising-media path only.
+! Do not use a generic third-party MP4 rule because it can
+! block legitimate thumbnail previews and video playback.
+||aucdn.net/library/*.mp4$media,third-party,domain=xvideos.com|xvideos2.com
 
 ! Block click-triggered advertising tabs and popunders
 *$popup,domain=xvideos.com|xvideos2.com
@@ -48,6 +50,7 @@ xvideos.com##.top-top
 xvideos.com##[href*="base64"]
 xvideos.com##[href*="data:"]
 
+
 ! =====================================================
 ! HENTAIHAVEN — ads, VAST requests, popups and popunders
 ! =====================================================
@@ -57,6 +60,11 @@ xvideos.com##[href*="data:"]
 ||havenclick.com^$third-party,domain=hentaihaven.xxx
 ||ads-twitter.com^$third-party,domain=hentaihaven.xxx
 ||cdn.pornhaven.ai/design/ads/$domain=hentaihaven.xxx
+
+! Block current first-party popup/interstitial manager
+/wp-content/plugins/script-manager/assets/js/script-manager.js$script,domain=hentaihaven.xxx
+
+! Older script-manager infrastructure
 ||hentaihaven.icu/wp-content/plugins/sscript-manager/
 
 ! Block VAST/ad-delivery requests
@@ -74,6 +82,7 @@ hentaihaven.xxx##.popecrazy
 hentaihaven.xxx##.hhzt
 hentaihaven.xxx##.code-block
 hentaihaven.xxx##.aloading > div[class*=" col-md-zarat "]:has(> .related-reading-wrap > .widget-thumbnail > ins[data-revive-zoneid])
+
 
 ! =====================================================
 ! PORNHUB — third-party ads, tracking, popups and clutter
@@ -103,6 +112,7 @@ pornhub.com,pornhub.org,pornhub.net##div[class]:has(> div > .ad-link)
 ! Do NOT block phncdn.com or generic video/media files:
 ! those hosts and files are also used for legitimate thumbnails and playback.
 
+
 ! =====================================================
 ! OPTIONAL AGGRESSIVE XVIDEOS FALLBACK
 ! Leave disabled unless the preroll returns.
@@ -110,6 +120,7 @@ pornhub.com,pornhub.org,pornhub.net##div[class]:has(> div > .ad-link)
 ! =====================================================
 
 ! *.mp4$media,domain=xvideos.com
+
 
 ! =====================================================
 ! JUGABET — COMPLETE DOMAIN BLOCK
