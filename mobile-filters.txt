@@ -1,10 +1,8 @@
-==================== mobile-filters.txt ====================
-
 [Adblock Plus 2.0]
 ! Title: A - TBS - Personal Mobile Filters
 ! Description: Custom filtering rules for Vivaldi Mobile.
-! Version: 20260806.1
-! Last modified: 2026-08-06
+! Version: 20260807.1
+! Last modified: 2026-08-07
 ! Expires: 1 day
 ! Compatibility: Vivaldi Mobile 7.6 or newer.
 !
@@ -107,7 +105,6 @@ hentaihaven.xxx##.aloading > div[class*=" col-md-zarat "]:has(> .related-reading
 ! XVideos uses third-party media for legitimate thumbnail
 ! previews, so broad media rules cause site breakage.
 
-
 ! =====================================================
 ! JUGABET — COMPLETE DOMAIN BLOCK
 ! =====================================================
@@ -129,7 +126,6 @@ hentaihaven.xxx##.aloading > div[class*=" col-md-zarat "]:has(> .related-reading
 ||jugabet.cl^$popunder
 ||jugabet.mx^$popup
 ||jugabet.mx^$popunder
-
 
 ! =====================================================
 ! BETANO — COMPLETE DOMAIN BLOCK
