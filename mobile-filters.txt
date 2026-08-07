@@ -1,14 +1,15 @@
+==================== mobile-filters.txt ====================
+
 [Adblock Plus 2.0]
 ! Title: A - TBS - Personal Mobile Filters
 ! Description: Custom filtering rules for Vivaldi Mobile.
-! Version: 20260805.1
-! Last modified: 2026-08-05
+! Version: 20260806.1
+! Last modified: 2026-08-06
 ! Expires: 1 day
-! Compatibility: Recent Vivaldi Mobile builds recommended.
+! Compatibility: Vivaldi Mobile 7.6 or newer.
 !
-! Uses conventional network, popup and cosmetic filters.
+! Uses conventional network, popup, popunder and cosmetic filters.
 ! Avoids uBlock-specific ##+js(...) and redirect-rule syntax.
-
 
 ! =====================================================
 ! XVIDEOS — page ads, prerolls and advertising tabs
@@ -19,24 +20,31 @@
 ||xvideos.com/picserror/$domain=xvideos.com|xvideos2.com
 ||xvideos.com/lvcsm/abck-banners/
 
-! Known advertising provider
+! Known advertising providers
 ||orbsrv.com^$third-party,domain=xvideos.com|xvideos2.com
 ||a.orbsrv.com/ad-provider.js$script,third-party,domain=xvideos.com|xvideos2.com
+||pemsrv.com^$third-party,domain=xvideos.com|xvideos2.com
+||pemsrv.com^$popup,domain=xvideos.com|xvideos2.com
+||pemsrv.com^$popunder,domain=xvideos.com|xvideos2.com
 
 ! In-player VAST advertising selection
 /vast.php?idzone=$domain=xvideos.com|xvideos2.com
 
-! Known advertising-media path
-! Do not replace this with a generic *.mp4 rule.
-! Generic MP4 blocking also disables thumbnail previews.
+! Known advertising-media paths only.
+! Do not replace these with a generic *.mp4 rule.
+! Generic third-party MP4 blocking breaks legitimate
+! XVideos thumbnail previews and can interfere with playback.
 ||aucdn.net/library/*.mp4$media,third-party,domain=xvideos.com|xvideos2.com
+||bkcdn.net/library/*.mp4$media,third-party,domain=xvideos.com|xvideos2.com
 
-! Block click-triggered advertising tabs
+! Block click-triggered advertising tabs and popunders
 *$popup,domain=xvideos.com|xvideos2.com
+*$popunder,domain=xvideos.com|xvideos2.com
 
-! Hide known advertising links and containers
+! Hide known advertising links and containers.
+! Do NOT hide #video-right: it can contain legitimate
+! player controls such as quality/subtitle/audio settings.
 xvideos.com,xvideos2.com##a[href*="/go.php?"][href*="&ad="]
-xvideos.com,xvideos2.com###video-right
 xvideos.com,xvideos2.com###video-sponsor-links
 xvideos.com,xvideos2.com###ad-footer
 xvideos.com,xvideos2.com##.player-video.xv-cams-block
@@ -48,7 +56,6 @@ xvideos.com,xvideos2.com##.top-top
 xvideos.com,xvideos2.com##[href*="base64"]
 xvideos.com,xvideos2.com##[href*="data:"]
 
-
 ! =====================================================
 ! HENTAIHAVEN — ads, VAST requests and advertising tabs
 ! =====================================================
@@ -59,17 +66,29 @@ xvideos.com,xvideos2.com##[href*="data:"]
 ||ads-twitter.com^$third-party,domain=hentaihaven.xxx
 ||cdn.pornhaven.ai/design/ads/$domain=hentaihaven.xxx
 
-! Block current first-party popup/interstitial manager
-/wp-content/plugins/script-manager/assets/js/script-manager.js$script,domain=hentaihaven.xxx
+! Block JavaScript belonging to the first-party
+! advertising/interstitial Script Manager plugin.
+!
+! Use the plugin path rather than one exact JS filename so
+! renamed/versioned Script Manager files cannot attach a
+! popup handler to every tap.
+!
+! Do NOT block the separate player-logic plugin.
+||hentaihaven.xxx/wp-content/plugins/script-manager/*.js$script
 
 ! Older script-manager infrastructure
 ||hentaihaven.icu/wp-content/plugins/sscript-manager/
 
 ! Block VAST and advertising-delivery requests
-||havenclick.com/www/delivery/$xhr,domain=hentaihaven.xxx
+||havenclick.com/www/delivery/$xmlhttprequest,domain=hentaihaven.xxx
 
-! Block click-triggered advertising tabs
-*$popup,domain=hentaihaven.xxx
+! Block known advertising popup/popunder destinations.
+! These are intentionally destination-specific rather than
+! *$popup/*$popunder for every HentaiHaven navigation.
+||havenclick.com^$popup,domain=hentaihaven.xxx
+||havenclick.com^$popunder,domain=hentaihaven.xxx
+||adtng.com^$popup,domain=hentaihaven.xxx
+||adtng.com^$popunder,domain=hentaihaven.xxx
 
 ! Hide known advertising frames and containers
 hentaihaven.xxx##iframe[src*="adtng.com"]
@@ -80,16 +99,13 @@ hentaihaven.xxx##.hhzt
 hentaihaven.xxx##.code-block
 hentaihaven.xxx##.aloading > div[class*=" col-md-zarat "]:has(> .related-reading-wrap > .widget-thumbnail > ins[data-revive-zoneid])
 
-
 ! =====================================================
 ! OPTIONAL AGGRESSIVE XVIDEOS FALLBACK
 ! =====================================================
 !
-! Leave this section disabled.
-! Blocking all third-party MP4 files breaks legitimate
-! thumbnail previews and may interfere with playback.
-!
-! *.mp4$media,third-party,domain=xvideos.com|xvideos2.com
+! No generic MP4 fallback is provided intentionally.
+! XVideos uses third-party media for legitimate thumbnail
+! previews, so broad media rules cause site breakage.
 
 
 ! =====================================================
@@ -106,7 +122,33 @@ hentaihaven.xxx##.aloading > div[class*=" col-md-zarat "]:has(> .related-reading
 ||jugabet.cl^$document
 ||jugabet.mx^$document
 
-! Block popup tabs leading to Jugabet
+! Block popup and popunder tabs leading to Jugabet
 ||jugabet.com^$popup
+||jugabet.com^$popunder
 ||jugabet.cl^$popup
+||jugabet.cl^$popunder
 ||jugabet.mx^$popup
+||jugabet.mx^$popunder
+
+
+! =====================================================
+! BETANO — COMPLETE DOMAIN BLOCK
+! =====================================================
+
+! Block all connections to Betano and its subdomains
+||betano.com^
+||betano.cl^
+||betano.mx^
+
+! Block direct navigation to Betano pages
+||betano.com^$document
+||betano.cl^$document
+||betano.mx^$document
+
+! Block popup and popunder tabs leading to Betano
+||betano.com^$popup
+||betano.com^$popunder
+||betano.cl^$popup
+||betano.cl^$popunder
+||betano.mx^$popup
+||betano.mx^$popunder
