@@ -1,15 +1,15 @@
+
 [Adblock Plus 2.0]
 ! Title: A - TBS - Personal Vivaldi Desktop Filters
 ! Description: Vivaldi Desktop-compatible ad, preroll, popup and popunder rules.
-! Version: 20260805.1
-! Last modified: 2026-08-05
+! Version: 20260806.1
+! Last modified: 2026-08-06
 ! Expires: 1 day
 ! Compatibility: Vivaldi Desktop 7.6 or newer.
 !
 ! This desktop edition intentionally avoids uBlock-only ##+js(...) and
 ! redirect-rule= syntax, because Vivaldi rejects those rules.
 ! The corresponding normal network, popup and cosmetic blocks remain active.
-
 
 ! =====================================================
 ! XVIDEOS — page ads, prerolls, popups and popunders
@@ -20,25 +20,30 @@
 ||xvideos.com/picserror/$domain=xvideos.com
 ||xvideos.com/lvcsm/abck-banners/
 
-! Known advertising provider
+! Known advertising providers
 ||orbsrv.com^$third-party,domain=xvideos.com
 ||a.orbsrv.com/ad-provider.js$script,third-party,domain=xvideos.com
+||pemsrv.com^$third-party,domain=xvideos.com|xvideos2.com
+||pemsrv.com^$popup,domain=xvideos.com|xvideos2.com
+||pemsrv.com^$popunder,domain=xvideos.com|xvideos2.com
 
 ! In-player preroll selection
 /vast.php?idzone=$domain=xvideos.com
 
-! Known advertising-media path only.
+! Known advertising-media paths only.
 ! Do not use a generic third-party MP4 rule because it can
 ! block legitimate thumbnail previews and video playback.
 ||aucdn.net/library/*.mp4$media,third-party,domain=xvideos.com|xvideos2.com
+||bkcdn.net/library/*.mp4$media,third-party,domain=xvideos.com|xvideos2.com
 
 ! Block click-triggered advertising tabs and popunders
 *$popup,domain=xvideos.com|xvideos2.com
 *$popunder,domain=xvideos.com|xvideos2.com
 
-! Hide known advertising links and containers
+! Hide known advertising links and containers.
+! Do NOT hide #video-right: it can contain legitimate
+! player controls such as quality/subtitle/audio settings.
 xvideos.com##a[href*="/go.php?"][href*="&ad="]
-xvideos.com###video-right
 xvideos.com###video-sponsor-links
 xvideos.com###ad-footer
 xvideos.com##.player-video.xv-cams-block
@@ -50,29 +55,35 @@ xvideos.com##.top-top
 xvideos.com##[href*="base64"]
 xvideos.com##[href*="data:"]
 
-
 ! =====================================================
 ! HENTAIHAVEN — ads, VAST requests, popups and popunders
 ! =====================================================
 
 ! Known external advertising and redirect services
-||a.adtng.com^$third-party,domain=hentaihaven.xxx
+||adtng.com^$third-party,domain=hentaihaven.xxx
 ||havenclick.com^$third-party,domain=hentaihaven.xxx
 ||ads-twitter.com^$third-party,domain=hentaihaven.xxx
 ||cdn.pornhaven.ai/design/ads/$domain=hentaihaven.xxx
 
-! Block current first-party popup/interstitial manager
-/wp-content/plugins/script-manager/assets/js/script-manager.js$script,domain=hentaihaven.xxx
+! Block JavaScript belonging to the first-party
+! advertising/interstitial Script Manager plugin.
+!
+! Do NOT block the separate player-logic plugin.
+||hentaihaven.xxx/wp-content/plugins/script-manager/*.js$script
 
 ! Older script-manager infrastructure
 ||hentaihaven.icu/wp-content/plugins/sscript-manager/
 
 ! Block VAST/ad-delivery requests
-||havenclick.com/www/delivery/$xhr,domain=hentaihaven.xxx
+||havenclick.com/www/delivery/$xmlhttprequest,domain=hentaihaven.xxx
 
-! Block click-triggered advertising tabs and popunders
-*$popup,domain=hentaihaven.xxx
-*$popunder,domain=hentaihaven.xxx
+! Block only known advertising popup/popunder destinations.
+! Avoid a blanket HentaiHaven popup rule to reduce
+! legitimate-site interference and popup-blocker UI noise.
+||havenclick.com^$popup,domain=hentaihaven.xxx
+||havenclick.com^$popunder,domain=hentaihaven.xxx
+||adtng.com^$popup,domain=hentaihaven.xxx
+||adtng.com^$popunder,domain=hentaihaven.xxx
 
 ! Hide known advertising frames and containers
 hentaihaven.xxx##iframe[src^="https://a.adtng.com/"]
@@ -82,7 +93,6 @@ hentaihaven.xxx##.popecrazy
 hentaihaven.xxx##.hhzt
 hentaihaven.xxx##.code-block
 hentaihaven.xxx##.aloading > div[class*=" col-md-zarat "]:has(> .related-reading-wrap > .widget-thumbnail > ins[data-revive-zoneid])
-
 
 ! =====================================================
 ! PORNHUB — third-party ads, tracking, popups and clutter
@@ -115,11 +125,11 @@ pornhub.com,pornhub.org,pornhub.net##div[class]:has(> div > .ad-link)
 
 ! =====================================================
 ! OPTIONAL AGGRESSIVE XVIDEOS FALLBACK
-! Leave disabled unless the preroll returns.
-! These may break legitimate playback.
 ! =====================================================
-
-! *.mp4$media,domain=xvideos.com
+!
+! No generic MP4 fallback is provided intentionally.
+! XVideos uses third-party media for legitimate thumbnail
+! previews and playback.
 
 
 ! =====================================================
@@ -143,3 +153,26 @@ pornhub.com,pornhub.org,pornhub.net##div[class]:has(> div > .ad-link)
 ||jugabet.cl^$popunder
 ||jugabet.mx^$popup
 ||jugabet.mx^$popunder
+
+
+! =====================================================
+! BETANO — COMPLETE DOMAIN BLOCK
+! =====================================================
+
+! Block all connections to Betano and its subdomains
+||betano.com^
+||betano.cl^
+||betano.mx^
+
+! Block direct navigation to Betano pages
+||betano.com^$document
+||betano.cl^$document
+||betano.mx^$document
+
+! Close popup and popunder tabs leading to Betano
+||betano.com^$popup
+||betano.com^$popunder
+||betano.cl^$popup
+||betano.cl^$popunder
+||betano.mx^$popup
+||betano.mx^$popunder
