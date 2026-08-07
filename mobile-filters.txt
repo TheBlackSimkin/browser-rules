@@ -1,75 +1,8 @@
 [Adblock Plus 2.0]
 ! Title: A - TBS - Personal Mobile Filters
 ! Description: Custom filtering rules for Vivaldi Mobile.
-! Version: 20260804.3
-! Last modified: 2026-08-04
-! Expires: 1 day
-! Compatibility: Vivaldi 7.6+ recommended; Adblock Plus and selected uBlock-style rules.
-
-! ==================== Site group A ====================
-! XVideos: page ads, click-triggered popup/popunder and in-player preroll
-
-! Known first-party ad and tracking paths
-||xvideos.com/zoneload/$domain=xvideos.com
-||xvideos.com/picserror/$domain=xvideos.com
-||xvideos.com/lvcsm/abck-banners/
-
-! Known ad provider
-||orbsrv.com^$third-party,domain=xvideos.com
-||a.orbsrv.com/ad-provider.js$script,third-party,domain=xvideos.com
-
-! Block VAST ad manifests used to select in-player prerolls
-/vast.php?idzone=$domain=xvideos.com
-
-! Current fallback for short MP4 prerolls whose delivery host rotates.
-! Restrict to third-party media first, then replace when redirect-rule is supported.
-*.mp4$media,third-party,domain=xvideos.com
-*.mp4$media,third-party,domain=xvideos.com,redirect-rule=noopmp4-1s
-
-! Block advertising popup/popunder navigations initiated from XVideos.
-*$popup,domain=xvideos.com
-
-! Remove known advertising links and containers
-xvideos.com##a[href*="/go.php?"][href*="&ad="]
-xvideos.com###video-right
-xvideos.com###video-sponsor-links
-xvideos.com###ad-footer
-xvideos.com##.player-video.xv-cams-block
-xvideos.com##.thumb-ad
-xvideos.com##.video-ad
-xvideos.com##.remove-ads > *
-xvideos.com##.e-banner-game
-xvideos.com##.top-top
-xvideos.com##[href*="base64"]
-xvideos.com##[href*="data:"]
-
-! uBlock-style scriptlets used by maintained upstream filters to suppress
-! window.open/popunder behavior and the click handler named ShouldShow.
-! Vivaldi versions without scriptlet support will ignore these lines.
-xvideos.com,xvideos2.com##+js(nowoif)
-xvideos.com,xvideos2.com##+js(aeld, click, ShouldShow)
-
-! ==================== Site group B ====================
-! HentaiHaven
-||a.adtng.com^$third-party,domain=hentaihaven.xxx
-||cdn.pornhaven.ai/design/ads/$domain=hentaihaven.xxx
-hentaihaven.xxx##iframe[src^="https://a.adtng.com/"]
-hentaihaven.xxx##.script_manager_video_master
-hentaihaven.xxx##.vrav_a_pc
-hentaihaven.xxx##.popecrazy
-hentaihaven.xxx##.hhzt
-hentaihaven.xxx##.code-block
-hentaihaven.xxx##.aloading > div[class*=" col-md-zarat "]:has(> .related-reading-wrap > .widget-thumbnail > ins[data-revive-zoneid])
-
-! ==================== Optional aggressive fallback ====================
-! Leave disabled unless the five-second preroll remains.
-! This may block legitimate MP4 playback if XVideos changes its delivery format.
-! *.mp4$media,domain=xvideos.com
-! *.mp4$media,domain=xvideos.com,redirect-rule=noopmp4-1s[Adblock Plus 2.0]
-! Title: A - TBS - Personal Mobile Filters
-! Description: Custom filtering rules for Vivaldi Mobile.
-! Version: 20260804.3
-! Last modified: 2026-08-04
+! Version: 20260807.10
+! Last modified: 2026-08-07
 ! Expires: 1 day
 ! Compatibility: Vivaldi 7.6+ recommended; Adblock Plus and selected uBlock-style rules.
 
@@ -133,3 +66,51 @@ hentaihaven.xxx##.aloading > div[class*=" col-md-zarat "]:has(> .related-reading
 ! This may block legitimate MP4 playback if XVideos changes its delivery format.
 ! *.mp4$media,domain=xvideos.com
 ! *.mp4$media,domain=xvideos.com,redirect-rule=noopmp4-1s
+
+
+
+
+! =====================================================
+! JUGABET — COMPLETE DOMAIN BLOCK
+! =====================================================
+
+! Block all connections to Jugabet and its subdomains
+||jugabet.com^
+||jugabet.cl^
+||jugabet.mx^
+
+! Block direct navigation to Jugabet pages
+||jugabet.com^$document
+||jugabet.cl^$document
+||jugabet.mx^$document
+
+! Block popup and popunder tabs leading to Jugabet
+||jugabet.com^$popup
+||jugabet.com^$popunder
+||jugabet.cl^$popup
+||jugabet.cl^$popunder
+||jugabet.mx^$popup
+||jugabet.mx^$popunder
+
+
+! =====================================================
+! BETANO — COMPLETE DOMAIN BLOCK
+! =====================================================
+
+! Block all connections to Betano and its subdomains
+||betano.com^
+||betano.cl^
+||betano.mx^
+
+! Block direct navigation to Betano pages
+||betano.com^$document
+||betano.cl^$document
+||betano.mx^$document
+
+! Block popup and popunder tabs leading to Betano
+||betano.com^$popup
+||betano.com^$popunder
+||betano.cl^$popup
+||betano.cl^$popunder
+||betano.mx^$popup
+||betano.mx^$popunder
