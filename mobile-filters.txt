@@ -1,7 +1,9 @@
 [Adblock Plus 2.0]
 ! Title: A - TBS - Personal Mobile Filters
 ! Description: Conservative mobile filtering rules for Vivaldi Android.
-! Version: 202:contentReference[oaicite:0]{index=0}pires: 1 day
+! Version: 20260811.3
+! Last modified: 2026-08-11
+! Expires: 1 day
 !
 ! Design rules:
 ! - Mobile only.
@@ -13,6 +15,13 @@
 !     1. there is a specific confirmed problem,
 !     2. an upstream maintained list uses the same technique,
 !     3. the rule is clearly marked for testing.
+!
+! 20260811.3:
+! - Removed failed ShouldShow experiment from .2.
+! - Changed known XVideos ad MP4 from outright blocking
+!   to harmless MP4 redirection.
+! - Added targeted exoJsPop101 popup prevention.
+! - Strengthened R1 blocking after real-device redirect test.
 !
 ! Public section names are deliberately neutral.
 ! See CURRENT-STATE.MD for maintenance context.
@@ -44,31 +53,33 @@
 ! In-player advertising selection
 ! -----------------------------------------------------
 
-! Block the advertising instruction rather than normal
-! video media.
 /vast.php?idzone=$domain=xvideos.com|xvideos2.com
 
 
 ! -----------------------------------------------------
-! Narrow advertising media path
+! Narrow advertising media replacement
 ! -----------------------------------------------------
 
-! 20260811.2:
-! Current EasyList specifically identifies MP4 files under
-! aucdn.net/library/ as advertising media on XVideos/XNXX.
-!
 ! IMPORTANT:
-! This is deliberately NOT:
+! This is NOT generic MP4 blocking.
 !
-! *.mp4$media
+! EasyList specifically identifies:
 !
-! Only this known third-party path is affected.
+! aucdn.net/library/*.mp4
+!
+! as advertising media on XVideos and related sites.
+!
+! .2 simply blocked the request. That did not remove
+! the observed pre/post ads.
+!
+! .3 instead replaces only this known ad-media path
+! with a harmless blank/no-op MP4 resource.
 
-||aucdn.net/library/*.mp4$media,third-party,domain=xvideos.com|xvideos2.com
+||aucdn.net/library/*.mp4$media,third-party,redirect=noopmp4-1s,domain=xvideos.com|xvideos2.com
 
 
 ! -----------------------------------------------------
-! Click-created popup / popunder navigation
+! Basic popup / popunder navigation
 ! -----------------------------------------------------
 
 *$popup,domain=xvideos.com|xvideos2.com
@@ -76,20 +87,26 @@
 
 
 ! -----------------------------------------------------
-! EXPERIMENTAL 20260811.2
-! First-click advertising handler
+! EXPERIMENTAL 20260811.3
+! Specific advertising popup property
 ! -----------------------------------------------------
 
-! Current uBlock-maintained rules identify a click listener
-! containing "ShouldShow" as part of XVideos popup behavior.
+! .2 used:
 !
-! Vivaldi 7.9+ improved uBlock-format content-injection
-! compatibility.
+! ##+js(aeld, click, ShouldShow)
 !
-! This rule is intentionally much narrower than disabling
-! JavaScript or disabling window.open everywhere.
+! Real-device result was unacceptable:
+! the unwanted destination changed from a new tab
+! to replacing the current XVideos tab.
+!
+! That rule has therefore been REMOVED.
+!
+! Current maintained AdGuard filters instead identify
+! exoJsPop101 as an advertising popup component on XVideos.
+!
+! Test only this more specific intervention.
 
-xvideos.com,xvideos2.com##+js(aeld, click, ShouldShow)
+xvideos.com,xvideos2.com#%#//scriptlet('abort-on-property-read', 'exoJsPop101')
 
 
 ! -----------------------------------------------------
@@ -157,29 +174,46 @@ hentaihaven.xxx##.vrav_a_pc
 ! =====================================================
 
 ! Block known unwanted destination family.
+!
+! .3 deliberately includes both exact known hosts
+! and a "jugabet" substring fallback because a real-device
+! test reached an unaccounted-for JUGABET destination.
 
 ||jugabet.com^
 ||jugabet.cl^
 ||jugabet.mx^
+||play-jugabet.net^
+||juego-bet.cl^
 
 ||jugabet.com^$document
 ||jugabet.cl^$document
 ||jugabet.mx^$document
+||play-jugabet.net^$document
+||juego-bet.cl^$document
 
 ||jugabet.com^$popup
 ||jugabet.cl^$popup
 ||jugabet.mx^$popup
+||play-jugabet.net^$popup
+||juego-bet.cl^$popup
 
 ||jugabet.com^$popunder
 ||jugabet.cl^$popunder
 ||jugabet.mx^$popunder
+||play-jugabet.net^$popunder
+||juego-bet.cl^$popunder
+
+! Brand-string fallback.
+!
+! This is intentionally broader than the exact-domain rules.
+! The user wants this destination family blocked completely.
+
+*jugabet*
 
 
 ! =====================================================
 ! R2
 ! =====================================================
-
-! Block known unwanted destination family.
 
 ||betano.com^
 ||betano.cl^
@@ -202,11 +236,6 @@ hentaihaven.xxx##.vrav_a_pc
 ! R3
 ! =====================================================
 
-! Added 20260811.2 after physical-device test:
-! unwanted first-click destination observed from Group A.
-!
-! Completely blocking this destination family is intentional.
-
 ||stripchat.com^
 ||strip.chat^
 ||stripchat.global^
@@ -228,18 +257,19 @@ hentaihaven.xxx##.vrav_a_pc
 ! SAFETY NOTES
 ! =====================================================
 
-! DO NOT add rules such as:
+! DO NOT add:
 !
 ! *.mp4$media,domain=...
 ! *.mp4$media,third-party,domain=...
 !
-! They can block legitimate playback and preview media.
+! Those can break legitimate playback and previews.
+!
 !
 ! A narrow proven path such as:
 !
 ! ||known-ad-host.example/ad-path/*.mp4$media,domain=...
 !
-! is different and may be acceptable after evidence/testing.
+! is fundamentally different.
 !
 !
 ! DO NOT add broad cosmetic rules such as:
@@ -252,8 +282,17 @@ hentaihaven.xxx##.vrav_a_pc
 !
 ! DO NOT disable all JavaScript on a video site.
 !
-! DO NOT hide a complete player/container merely because an ad
-! appears somewhere inside it.
+! DO NOT hide a complete player/container merely because
+! an advertisement appears somewhere inside it.
 !
-! If something survives, identify that specific request,
-! handler or element and add one narrow rule instead.
+!
+! If a scriptlet changes unwanted NEW-TAB behavior into
+! unwanted SAME-TAB navigation, treat that experiment as
+! FAILED and remove it.
+!
+!
+! Success means:
+!
+! unwanted behavior gone
+! AND
+! normal site behavior intact.
