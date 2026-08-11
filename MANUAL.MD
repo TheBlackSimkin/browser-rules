@@ -1,1387 +1,981 @@
-# Vivaldi Filter Manual for Complete Beginners
+# Vivaldi Mobile Filter Manual
 
-This manual explains, in plain language, how to understand and add rules to:
+This manual is written for a non-developer maintaining a small personal Vivaldi Android filter list.
+
+You do **not** need to understand programming to use it.
+
+The goal is simple:
+
+```text
+remove unwanted material
+without breaking normal browsing or video playback
+```
+
+The project is mobile-only.
+
+---
+
+# 1. The Four Files
+
+The repository should contain only:
+
+```text
+README.md
+MANUAL.MD
+CURRENT-STATE.MD
+mobile-filters.txt
+```
+
+## `mobile-filters.txt`
+
+This is the real blocker list.
+
+This is the **only repository file imported into Vivaldi**.
+
+## `README.md`
+
+Short public description of the repository.
+
+Do not import it into Vivaldi.
+
+## `MANUAL.MD`
+
+This file.
+
+It explains how to operate the project.
+
+Do not import it into Vivaldi.
+
+## `CURRENT-STATE.MD`
+
+The maintenance memory.
+
+It records what was tried, what failed, the target environment and how future changes should be made.
+
+Do not import it into Vivaldi.
+
+---
+
+# 2. Files We No Longer Use
+
+Delete these if they still exist:
+
+```text
+desktop-filters.txt
+DESKTOP-MANUAL.MD
+```
+
+This project is no longer trying to maintain separate desktop and mobile lists.
+
+---
+
+# 3. The Most Important Safety Rule
+
+Never assume:
+
+```text
+third-party = advertisement
+```
+
+and never assume:
+
+```text
+MP4 = advertisement
+```
+
+A website can load its legitimate video or preview from another server.
+
+That means a rule such as:
+
+```text
+*.mp4$media,third-party,domain=example.com
+```
+
+can block good content together with bad content.
+
+For this project, broad MP4 blocking is forbidden as a normal solution.
+
+---
+
+# 4. What a Filter Can Do
+
+There are several useful kinds of filter.
+
+## Network rule
+
+Example:
+
+```text
+||ads.example.net^
+```
+
+Meaning:
+
+```text
+block requests to ads.example.net
+```
+
+## Site-limited network rule
+
+Example:
+
+```text
+||ads.example.net^$third-party,domain=example.com
+```
+
+Meaning:
+
+```text
+while visiting example.com,
+block third-party requests to ads.example.net
+```
+
+This is safer because it affects fewer websites.
+
+## Cosmetic rule
+
+Example:
+
+```text
+example.com##.advertisement
+```
+
+Meaning:
+
+```text
+on example.com,
+hide elements whose CSS class is advertisement
+```
+
+## ID cosmetic rule
+
+Example:
+
+```text
+example.com###advertisement-box
+```
+
+The three `#` symbols look strange, but they are:
+
+```text
+##   filter syntax
+#    CSS ID
+```
+
+So this means:
+
+```text
+hide #advertisement-box on example.com
+```
+
+## Popup rule
+
+Example:
+
+```text
+*$popup,domain=example.com
+```
+
+Meaning:
+
+```text
+block popup-style navigation initiated from example.com
+```
+
+## Popunder rule
+
+Example:
+
+```text
+*$popunder,domain=example.com
+```
+
+Meaning:
+
+```text
+block popunder-style navigation initiated from example.com
+```
+
+---
+
+# 5. What `!` Means
+
+A line beginning with:
+
+```text
+!
+```
+
+is a comment.
+
+Example:
+
+```text
+! This is a note.
+```
+
+Vivaldi does not treat that line as an active blocking rule.
+
+Comments are useful for documenting why a rule exists.
+
+---
+
+# 6. Why We Prefer Narrow Rules
+
+Suppose an advertising request is:
+
+```text
+https://ads.example.net/video/ad-123.mp4
+```
+
+A dangerous reaction is:
+
+```text
+*.mp4$media,domain=example.com
+```
+
+That may block every MP4.
+
+A better rule is:
+
+```text
+||ads.example.net^$third-party,domain=example.com
+```
+
+An even narrower rule could be:
+
+```text
+||ads.example.net/video/$media,third-party,domain=example.com
+```
+
+The principle is:
+
+```text
+block the smallest identifiable bad thing
+```
+
+not:
+
+```text
+block everything that resembles it
+```
+
+---
+
+# 7. GitHub Page Versus RAW File
+
+This distinction is extremely important.
+
+The normal GitHub page looks approximately like:
+
+```text
+github.com/.../blob/main/mobile-filters.txt
+```
+
+That is a web page for humans.
+
+Do **not** give that page to Vivaldi as the filter source.
+
+Vivaldi needs the RAW text file:
+
+```text
+https://raw.githubusercontent.com/TheBlackSimkin/browser-rules/main/mobile-filters.txt
+```
+
+That address returns the filter text directly.
+
+---
+
+# 8. How to Replace a Repository File
+
+When ChatGPT gives you a complete replacement file:
+
+1. Open your GitHub repository.
+2. Open the file you need to replace.
+3. Enter edit mode using the pencil/edit button.
+4. Select all existing text.
+5. Delete it.
+6. Paste the complete replacement text from ChatGPT.
+7. Check the beginning and end to make sure nothing was accidentally omitted.
+8. Commit the change.
+
+You do not need to manually merge old and new text when ChatGPT explicitly says:
+
+```text
+complete replacement
+```
+
+Replace the whole file.
+
+---
+
+# 9. How to Create `CURRENT-STATE.MD`
+
+If the file does not exist:
+
+1. Open the repository.
+2. Choose the option to add/create a new file.
+3. Name it exactly:
+
+```text
+CURRENT-STATE.MD
+```
+
+4. Paste the complete supplied content.
+5. Commit it.
+
+Capitalization matters for keeping the repository organized consistently.
+
+---
+
+# 10. How to Delete the Desktop Files
+
+Delete:
+
+```text
+desktop-filters.txt
+DESKTOP-MANUAL.MD
+```
+
+For each one:
+
+1. Open the file in GitHub.
+2. Use the file actions menu.
+3. Choose the delete-file option.
+4. Commit the deletion.
+
+Afterward, check that the repository contains only:
+
+```text
+README.md
+MANUAL.MD
+CURRENT-STATE.MD
+mobile-filters.txt
+```
+
+---
+
+# 11. Preparing Vivaldi
+
+Use the current stable Vivaldi Android version whenever practical.
+
+Your browser interface is in Spanish, so the relevant names should look similar to:
+
+```text
+Configuración
+Privacidad
+Bloqueo de rastreadores y anuncios
+Nivel de bloqueo predeterminado
+Fuentes
+Administrar fuentes de bloqueo de anuncios
+Añadir nueva fuente
+Importar
+```
+
+The exact layout or wording can change slightly between versions.
+
+---
+
+# 12. Set the Blocking Level
+
+In Vivaldi Android:
+
+```text
+Menú Vivaldi
+→ Configuración
+→ Privacidad
+→ Bloqueo de rastreadores y anuncios
+```
+
+Find:
+
+```text
+Nivel de bloqueo predeterminado
+```
+
+Choose:
+
+```text
+Bloquear rastreadores y anuncios
+```
+
+Do not choose:
+
+```text
+No bloquear
+```
+
+and for this project do not use only:
+
+```text
+Bloquear rastreadores
+```
+
+because we specifically need advertising filtering too.
+
+---
+
+# 13. Check Per-Site Blocking
+
+Vivaldi can have a global setting and a different setting for one particular website.
+
+While the target page is open, tap the shield / content blocker icon near the address bar.
+
+Make sure that site is also using:
+
+```text
+Bloquear rastreadores y anuncios
+```
+
+If it says:
+
+```text
+No bloquear
+```
+
+the custom list will appear to be broken even when the rules themselves are correct.
+
+---
+
+# 14. Add the Custom Source
+
+Go to:
+
+```text
+Menú Vivaldi
+→ Configuración
+→ Privacidad
+→ Bloqueo de rastreadores y anuncios
+→ Fuentes
+```
+
+Look for the advertising-blocking sources.
+
+Choose:
+
+```text
+Añadir nueva fuente
+```
+
+Paste:
+
+```text
+https://raw.githubusercontent.com/TheBlackSimkin/browser-rules/main/mobile-filters.txt
+```
+
+Then choose:
+
+```text
+Importar
+```
+
+After importing, make sure the new source is enabled / checked.
+
+---
+
+# 15. Partner Advertising Setting
+
+While diagnosing this project, it is preferable not to have a separate advertising exception confusing the result.
+
+Under the advertising blocking sources, look for a setting corresponding to:
+
+```text
+Permitir anuncios de nuestros socios
+```
+
+Disable/uncheck it for the test configuration.
+
+---
+
+# 16. If the Source Was Already Added
+
+Editing GitHub does not mean an already open page instantly starts using the new rules.
+
+First:
+
+1. Commit the new `mobile-filters.txt`.
+2. Close the affected website tabs.
+3. Reopen the site.
+
+If Vivaldi still appears to use an older copy of your custom list and you cannot find a manual refresh option, the simple diagnostic method is:
+
+```text
+remove the custom source
+then add the RAW URL again
+```
+
+This forces you to know exactly which list is being tested.
+
+Do not repeatedly change rules while you are uncertain whether Vivaldi has loaded the new file.
+
+---
+
+# 17. First Test: Group A
+
+Do not immediately jump between many pages.
+
+Test systematically.
+
+Check:
+
+```text
+1. Page opens.
+2. Thumbnails appear.
+3. Preview behavior appears normally.
+4. Open one normal video.
+5. Video starts.
+6. Play/pause works.
+7. Seek/timeline works.
+8. Volume works.
+9. Fullscreen works.
+10. Check whether unwanted material appears before playback.
+11. Check whether unwanted material appears after playback.
+12. Tap ordinary page controls/links.
+13. Check whether an unwanted new tab opens.
+```
+
+The first priority is proving that normal video functionality still works.
+
+---
+
+# 18. Second Test: Group B
+
+After A has been tested, repeat the same basic checks on B.
+
+Pay special attention to:
+
+```text
+player loads
+player does not enter an anti-block loop
+normal video plays
+first click does not open another site
+later clicks do not open another site
+```
+
+B may be harder because some of its behavior is controlled directly by page JavaScript.
+
+---
+
+# 19. How to Use Vivaldi's Shield
+
+Vivaldi shows a shield/content-blocker icon near the address bar.
+
+Tap it.
+
+It can show information about blocked trackers and advertisements for the page.
+
+When a problem remains, this information may help determine whether:
+
+```text
+Vivaldi saw the advertising request
+Vivaldi blocked something
+the remaining behavior is script-driven
+```
+
+If you can send ChatGPT a screenshot of this information, do so.
+
+---
+
+# 20. If a Popup Still Opens
+
+Do not add:
+
+```text
+*.js
+```
+
+or:
+
+```text
+*$script
+```
+
+for the entire website.
+
+That can destroy the player and page navigation.
+
+Instead record:
+
+```text
+which site you were on
+what you tapped
+which hostname opened
+whether the original page changed
+whether the normal video still played
+```
+
+The unwanted destination hostname is particularly useful.
+
+It may allow a very narrow rule such as:
+
+```text
+||bad-destination.example^
+```
+
+---
+
+# 21. If a Banner Still Appears
+
+A banner can be either:
+
+```text
+a network-loaded resource
+```
+
+or:
+
+```text
+a page element that needs hiding
+```
+
+If you can take a screenshot, send it.
+
+Describe where it appears:
+
+```text
+top of page
+below player
+inside player
+between thumbnails
+bottom of page
+floating over page
+```
+
+Do not hide the entire surrounding section without identifying the banner more precisely.
+
+---
+
+# 22. If a Video Advertisement Still Appears
+
+Do not respond by blocking all MP4 files.
+
+The preferred order is:
+
+```text
+1. advertising instruction / VAST request
+2. dedicated advertising domain
+3. dedicated advertising path
+4. specific proven advertising media URL pattern
+```
+
+Generic media blocking is the last possible experiment, not the first solution.
+
+For this project it should normally remain disabled.
+
+---
+
+# 23. If Thumbnails Disappear
+
+Assume a new filter caused damage until proven otherwise.
+
+Check the most recently added rules.
+
+Rules most suspicious for disappearing previews include:
+
+```text
+generic media rules
+generic image rules
+broad cosmetic selectors
+large-container cosmetic selectors
+```
+
+Revert the newest suspicious rule and retest.
+
+Do not try to fix missing thumbnails by adding more filters.
+
+---
+
+# 24. If Player Controls Disappear
+
+Look first for cosmetic rules targeting:
+
+```text
+player
+video
+controls
+overlay
+container
+```
+
+A cosmetic rule can hide a parent element that contains both advertising and legitimate controls.
+
+Remove or disable the suspicious rule.
+
+The correct result is:
+
+```text
+advertising gone
+controls still present
+```
+
+Not:
+
+```text
+advertising gone because the entire player is gone
+```
+
+---
+
+# 25. About `##+js(...)`
+
+You may see rules online resembling:
+
+```text
+example.com##+js(...)
+```
+
+These are uBlock-style scriptlet rules.
+
+They can modify JavaScript behavior in ways ordinary network filters cannot.
+
+Do not automatically copy them into this Vivaldi list.
+
+A line accepted by uBlock Origin is not automatically equivalent to a rule that Vivaldi's native blocker can execute.
+
+For this repository, active rules should remain within Vivaldi-compatible behavior unless support for a particular syntax has been verified.
+
+---
+
+# 26. About Upstream Filter Lists
+
+Large projects such as EasyList, uBlock filters and AdGuard filters are useful evidence.
+
+They tell us what experienced maintainers are currently targeting.
+
+But this project should not blindly copy everything.
+
+Why?
+
+Because:
+
+```text
+different blockers support different syntax
+large lists have different compatibility goals
+a rule useful for millions of users may be unnecessary here
+some rules depend on other rules in the larger list
+```
+
+Use upstream filters as evidence, then choose the smallest rule appropriate for this Vivaldi setup.
+
+---
+
+# 27. The Rule Change Procedure
+
+Whenever adding a new rule:
+
+1. Start from the currently working baseline.
+2. Add the smallest plausible rule.
+3. Increase the version number.
+4. Update the modification date.
+5. Commit.
+6. Make sure Vivaldi is using the updated list.
+7. Test the unwanted behavior.
+8. Test thumbnails.
+9. Test playback.
+10. Test controls.
+11. Keep the rule only if both sides of the test pass.
+
+This makes it possible to know which rule caused a regression.
+
+---
+
+# 28. Version Numbers
+
+The file uses:
+
+```text
+YYYYMMDD.revision
+```
+
+Example:
+
+```text
+20260811.1
+```
+
+A second change on the same day becomes:
+
+```text
+20260811.2
+```
+
+A third:
+
+```text
+20260811.3
+```
+
+The next calendar day starts again at:
+
+```text
+YYYYMMDD.1
+```
+
+---
+
+# 29. How to Ask ChatGPT for the Next Fix
+
+A useful report looks like:
+
+```text
+Current filter version: 20260811.1
+
+Site: A
+Page: video page
+
+Normal video: works
+Thumbnails: work
+Controls: work
+Fullscreen: works
+
+Problem:
+A new tab still opens after the first tap on Play.
+
+Destination shown:
+example-domain.com
+
+The original video still begins normally.
+
+Vivaldi shield:
+12 items blocked.
+```
+
+That gives enough information to make a narrow next change.
+
+A less useful report is:
+
+```text
+ads are still there
+```
+
+because several completely different mechanisms can all look like "an ad."
+
+---
+
+# 30. What Not to Do
+
+Do not solve problems by repeatedly adding rules like:
+
+```text
+*.mp4
+*.js
+*$script
+*$media
+##video
+##iframe
+##.player
+```
+
+These are extremely broad in the context of a video website.
+
+Do not add five speculative changes at once.
+
+If the result improves, we would not know which change helped.
+
+If the site breaks, we would not know which change caused it.
+
+---
+
+# 31. Recovery Procedure
+
+If a new version breaks normal functionality:
+
+1. Do not panic and do not add another rule.
+2. Return to the previous known-good version.
+3. Confirm normal functionality returns.
+4. Identify which newly added rule caused the problem.
+5. Remove that rule.
+6. Design a narrower alternative.
+
+Git history is useful precisely because older versions can be recovered.
+
+---
+
+# 32. Project Philosophy
+
+The objective is not to create the world's largest filter list.
+
+The objective is:
+
+```text
+quiet browsing
+no unsolicited destinations
+minimal unwanted inserted content
+normal site functionality
+easy maintenance
+```
+
+A precise list is easier to understand, test and repair.
+
+---
+
+# 33. Final Quick Reference
+
+File imported into Vivaldi:
 
 ```text
 mobile-filters.txt
 ```
 
-The instructions file itself is:
+RAW source:
 
 ```text
-MANUAL.MD
+https://raw.githubusercontent.com/TheBlackSimkin/browser-rules/main/mobile-filters.txt
 ```
 
-Do not import `MANUAL.MD` into Vivaldi. Only import the Raw URL of `mobile-filters.txt`.
-
----
-
-# 1. What a Web Page Is Made Of
-
-A web page normally contains several different things:
-
-1. **HTML elements**  
-   Boxes, buttons, images, links, video players, banners, menus, and text.
-
-2. **CSS styles**  
-   Instructions that control how those elements look and where they appear.
-
-3. **JavaScript files**  
-   Programs that make the page interactive. They can also open popups, load ads, track clicks, or start video advertisements.
-
-4. **Network requests**  
-   Files downloaded by the page, such as images, scripts, videos, fonts, and advertising data.
-
-Different filter rules block different parts.
-
-For example:
-
-- A cosmetic rule hides an advertising box.
-- A script rule blocks a JavaScript file.
-- A media rule blocks an advertising video.
-- A popup rule tries to stop a new advertising tab.
-- A domain rule blocks everything loaded from a known advertising server.
-
----
-
-# 2. The Basic Shape of a Filter Rule
-
-Example:
+Vivaldi setting:
 
 ```text
-||ads.example.net^$third-party,domain=website.com
+Configuración
+→ Privacidad
+→ Bloqueo de rastreadores y anuncios
+→ Bloquear rastreadores y anuncios
 ```
 
-Meaning:
+Custom sources:
 
 ```text
-||ads.example.net^
+Fuentes
+→ Añadir nueva fuente
+→ paste RAW URL
+→ Importar
 ```
 
-Block requests to `ads.example.net`.
+Never restore as a normal rule:
 
 ```text
-$
+*.mp4$media,third-party,domain=...
 ```
 
-Everything after `$` contains extra conditions.
+When something survives:
 
 ```text
-third-party
+identify it
+block it narrowly
+retest normal functionality
 ```
 
-Only block it when it comes from another website.
+When something breaks:
 
 ```text
-domain=website.com
-```
-
-Only apply the rule while visiting `website.com`.
-
-In plain English:
-
-> While I am visiting `website.com`, block third-party requests to `ads.example.net`.
-
----
-
-# 3. Meaning of Common Symbols
-
-## `!` — Comment or Disabled Rule
-
-Example:
-
-```text
-! This is a note
-```
-
-Vivaldi ignores lines beginning with `!`.
-
-You can also disable a rule without deleting it:
-
-```text
-! ||ads.example.net^
-```
-
-To enable it again, remove `! `.
-
----
-
-## `||` — Match a Domain
-
-Example:
-
-```text
-||ads.example.net^
-```
-
-This blocks requests to:
-
-```text
-ads.example.net
-cdn.ads.example.net
-video.ads.example.net
-```
-
-It does not mean “two vertical lines” in a mathematical sense. In filter syntax, it means to match the beginning of a hostname.
-
----
-
-## `^` — End or Separator
-
-Example:
-
-```text
-||ads.example.net^
-```
-
-The `^` tells the blocker that the domain name ends there, or that a separator follows.
-
-It helps prevent accidental matches such as:
-
-```text
-ads.example.net.fake-site.com
+remove the last suspicious rule
+do not add more rules
 ```
 
 ---
 
-## `$` — Start of Options
+# 34. Before Every Future Maintenance Session
 
-Example:
+Read:
 
 ```text
-||ads.example.net^$script,third-party,domain=website.com
+CURRENT-STATE.MD
 ```
 
-Everything after `$` describes how and where the rule should apply.
+Then inspect the current:
 
----
-
-## `domain=`
-
-Example:
-
-```text
-domain=website.com
-```
-
-This limits the rule to one website.
-
-Without `domain=`, a rule may affect every site you visit.
-
-Safer:
-
-```text
-||ads.example.net^$third-party,domain=website.com
-```
-
-Riskier:
-
-```text
-||ads.example.net^
-```
-
-Use `domain=` whenever possible.
-
----
-
-## `third-party`
-
-This means the requested file comes from a different domain than the page you opened.
-
-Example:
-
-You open:
-
-```text
-website.com
-```
-
-The page loads an ad from:
-
-```text
-ads-company.net
-```
-
-That advertising request is third-party.
-
----
-
-## `script`
-
-Example:
-
-```text
-||ads.example.net/ad-loader.js$script,third-party,domain=website.com
-```
-
-This blocks a JavaScript file.
-
----
-
-## `media`
-
-Example:
-
-```text
-||video-ads.example.net/*.mp4$media,third-party,domain=website.com
-```
-
-This blocks a media file, such as an MP4 advertising video.
-
----
-
-## `popup` and `popunder`
-
-Example:
-
-```text
-*$popup,domain=website.com
-*$popunder,domain=website.com
-```
-
-- A **popup** opens a new tab or window in front of the current page.
-- A **popunder** opens a new tab or window behind the current page.
-
-These rules tell the blocker to stop popup-style navigation originating from that website.
-
----
-
-## `##` — Hide a Page Element
-
-Example:
-
-```text
-website.com##.advertisement
-```
-
-Everything after `##` is a CSS selector.
-
-This kind of rule does not stop a download. It hides a visible part of the page.
-
----
-
-# 4. What Is a CSS Class?
-
-A **class** is a reusable label attached to one or more page elements.
-
-Example HTML:
-
-```html
-<div class="advertisement">
-    Casino banner
-</div>
-```
-
-The class name is:
-
-```text
-advertisement
-```
-
-In a filter rule, a class begins with a dot:
-
-```text
-.advertisement
-```
-
-Complete rule:
-
-```text
-website.com##.advertisement
-```
-
-Meaning:
-
-> On `website.com`, hide every element with the class `advertisement`.
-
-A page may use the same class on several elements.
-
-Example:
-
-```html
-<div class="advertisement">Top banner</div>
-<div class="advertisement">Side banner</div>
-```
-
-The rule:
-
-```text
-website.com##.advertisement
-```
-
-would hide both.
-
----
-
-# 5. What Is a CSS ID?
-
-An **ID** is usually a unique label for one specific element.
-
-Example HTML:
-
-```html
-<div id="top-ad-banner">
-    Advertising banner
-</div>
-```
-
-The ID name is:
-
-```text
-top-ad-banner
-```
-
-In a CSS selector, an ID begins with `#`:
-
-```text
-#top-ad-banner
-```
-
-Complete filter rule:
-
-```text
-website.com###top-ad-banner
-```
-
-This looks like three `#` symbols because:
-
-- The first two belong to the filter syntax: `##`
-- The third belongs to the CSS ID selector: `#top-ad-banner`
-
-It can be mentally separated like this:
-
-```text
-website.com##  #top-ad-banner
-```
-
-Without the space:
-
-```text
-website.com###top-ad-banner
-```
-
-Meaning:
-
-> On `website.com`, hide the element whose ID is `top-ad-banner`.
-
----
-
-# 6. Class Versus ID
-
-Example HTML:
-
-```html
-<div id="main-ad" class="advertisement large-banner">
-```
-
-This element has:
-
-- ID: `main-ad`
-- Class: `advertisement`
-- Another class: `large-banner`
-
-Possible rules:
-
-```text
-website.com###main-ad
-```
-
-Hide the element by ID.
-
-```text
-website.com##.advertisement
-```
-
-Hide every element with the class `advertisement`.
-
-```text
-website.com##.large-banner
-```
-
-Hide every element with the class `large-banner`.
-
-## Easy Way to Remember
-
-- A class uses a dot: `.class-name`
-- An ID uses a hash: `#id-name`
-
-Examples:
-
-```text
-.advertisement
-```
-
-is a class.
-
-```text
-#top-ad
-```
-
-is an ID.
-
----
-
-# 7. How to Find a Class or ID
-
-This is much easier on a computer than on a phone.
-
-Use Vivaldi Desktop or another Chromium-based desktop browser.
-
-## Step-by-Step
-
-1. Open the website.
-2. Find the visible advertisement.
-3. Right-click directly on the advertisement.
-4. Click **Inspect**.
-5. Developer Tools opens.
-6. Look for the highlighted HTML line.
-
-You may see something like:
-
-```html
-<div class="video-ad-container">
-```
-
-The class is:
-
-```text
-video-ad-container
-```
-
-Possible rule:
-
-```text
-website.com##.video-ad-container
-```
-
-Or you may see:
-
-```html
-<div id="preroll-ad">
-```
-
-The ID is:
-
-```text
-preroll-ad
-```
-
-Possible rule:
-
-```text
-website.com###preroll-ad
-```
-
-## Important Warning
-
-Do not automatically block the first large container you see.
-
-For example:
-
-```html
-<div id="video-player">
-```
-
-may contain both the normal video and the advertisement.
-
-Blocking it could remove the entire player.
-
-Prefer names that clearly suggest advertising, such as:
-
-```text
-ad
-ads
-advert
-advertisement
-banner
-promo
-sponsor
-preroll
-popup
-casino
-```
-
-These names are clues, not guarantees.
-
----
-
-# 8. How to Test a Cosmetic Rule Before Saving It
-
-In Developer Tools:
-
-1. Find the suspected HTML element.
-2. Right-click the highlighted line.
-3. Choose **Delete element**.
-
-If only the advertisement disappears and the page still works, the element may be a good candidate.
-
-This deletion is temporary. Reloading the page brings it back.
-
-Then add the matching filter rule to `mobile-filters.txt`.
-
-Example:
-
-HTML:
-
-```html
-<div class="casino-popup-banner">
-```
-
-Rule:
-
-```text
-website.com##.casino-popup-banner
-```
-
----
-
-# 9. What Is an Advertising Script?
-
-A script is usually a JavaScript file ending in:
-
-```text
-.js
-```
-
-Examples:
-
-```text
-ad-loader.js
-popunder.js
-vast-player.js
-tracking.js
-campaign.js
-```
-
-A script can:
-
-- Open a new advertising tab.
-- Detect clicks.
-- Insert banners.
-- Request a video advertisement.
-- Redirect the browser.
-- Track what the user does.
-- Detect ad blockers.
-
-Example rule:
-
-```text
-||ads.example.net/js/popunder.js$script,third-party,domain=website.com
-```
-
-Meaning:
-
-> While visiting `website.com`, block the JavaScript file `popunder.js` loaded from `ads.example.net`.
-
----
-
-# 10. How to Find a Suspicious Script
-
-Use Vivaldi Desktop.
-
-## Step-by-Step
-
-1. Open the website.
-2. Press `F12`, or right-click the page and choose **Inspect**.
-3. Open the **Network** tab.
-4. Reload the page.
-5. Click the filter named **JS**.
-
-Now you should see JavaScript files.
-
-Look for suspicious names or domains such as:
-
-```text
-ad
-ads
-advert
-banner
-campaign
-click
-pop
-popup
-popunder
-redirect
-sponsor
-track
-vast
-```
-
-Example request:
-
-```text
-https://ads-company.net/scripts/popunder.js
-```
-
-Possible rule:
-
-```text
-||ads-company.net/scripts/popunder.js$script,third-party,domain=website.com
-```
-
-A broader version would be:
-
-```text
-||ads-company.net^$script,third-party,domain=website.com
-```
-
-The broader rule blocks every script from that advertising domain.
-
-Start with the narrow rule whenever possible.
-
----
-
-# 11. How to Know Whether a Script Is Really the Ad Script
-
-A filename is only a clue.
-
-Use this safer testing method:
-
-1. In Developer Tools, open **Network**.
-2. Find the suspicious script.
-3. Right-click it.
-4. Choose **Block request URL** or **Block request domain**, when available.
-5. Reload the page.
-6. Test the advertisement again.
-7. Confirm that normal video playback and navigation still work.
-
-If the popup disappears and everything else works, the script is probably related to the popup.
-
-If the entire player breaks, undo the block and choose a narrower rule.
-
-Developer Tools blocking is temporary and used only for testing.
-
----
-
-# 12. What Is an Advertising Video Request?
-
-A preroll advertisement is often a separate video file or video stream loaded before the normal video.
-
-Possible formats include:
-
-```text
-.mp4
-.m3u8
-.ts
-.webm
-```
-
-The website may also request an advertising playlist using terms such as:
-
-```text
-vast
-vmap
-preroll
-adtag
-adserver
-campaign
-zone
-```
-
-Examples:
-
-```text
-https://video-ads.example.net/library/ad-12345.mp4
-```
-
-```text
-https://ads.example.net/vast.php?zone=123
-```
-
-The first is the actual advertising video.
-
-The second may be an instruction telling the video player which advertisement to load.
-
----
-
-# 13. Meaning of an Advertising Video Rule
-
-Example:
-
-```text
-||video-ads.example.net/library/*.mp4$media,third-party,domain=website.com
-```
-
-Breakdown:
-
-```text
-||video-ads.example.net
-```
-
-Match the advertising video domain.
-
-```text
-/library/
-```
-
-Only match files inside that folder.
-
-```text
-*.mp4
-```
-
-Match any MP4 filename.
-
-```text
-$media
-```
-
-Only apply to media requests.
-
-```text
-third-party
-```
-
-Only when the file comes from another domain.
-
-```text
-domain=website.com
-```
-
-Only while visiting `website.com`.
-
-In plain English:
-
-> On `website.com`, block third-party MP4 media files loaded from the `/library/` folder of `video-ads.example.net`.
-
----
-
-# 14. Why a Narrow Video Rule Is Safer
-
-Good narrow rule:
-
-```text
-||video-ads.example.net/library/*.mp4$media,third-party,domain=website.com
-```
-
-This targets a known advertising server and folder.
-
-Dangerous broad rule:
-
-```text
-*.mp4$media,domain=website.com
-```
-
-This blocks every MP4 file on the website.
-
-That may include:
-
-- The five-second advertisement.
-- The normal full video.
-- Video previews.
-- Thumbnails.
-- Background clips.
-
-Use a broad MP4 rule only as a temporary experiment.
-
----
-
-# 15. How to Find the Advertising Video Request
-
-Use Vivaldi Desktop.
-
-## Step-by-Step
-
-1. Open Developer Tools with `F12`.
-2. Open the **Network** tab.
-3. Select the **Media** filter.
-4. Clear the Network list.
-5. Start opening a video.
-6. Watch which requests appear during the five-second advertisement.
-7. Note the domain, path, and file type.
-8. Wait for the normal video to start.
-9. Compare the requests used by the advertisement and the normal video.
-
-Example:
-
-Advertising request:
-
-```text
-https://video-ads.example.net/library/casino-123.mp4
-```
-
-Normal video:
-
-```text
-https://cdn.website.com/videos/main-video-456.mp4
-```
-
-A good rule would target only:
-
-```text
-video-ads.example.net
-```
-
-Possible rule:
-
-```text
-||video-ads.example.net/library/*.mp4$media,third-party,domain=website.com
-```
-
-Do not block:
-
-```text
-cdn.website.com
-```
-
-because that may be the normal video server.
-
----
-
-# 16. How to Tell the Ad Video From the Normal Video
-
-Look for several clues together.
-
-## Timing
-
-The ad request appears immediately before the five-second advertisement.
-
-The normal video request appears when the actual content begins.
-
-## Duration
-
-The advertisement is usually very short.
-
-The normal video is much longer.
-
-## Domain
-
-The advertisement may come from a different company or unfamiliar domain.
-
-The normal video often comes from the website's own CDN.
-
-## Filename or Path
-
-Advertising paths may contain:
-
-```text
-ad
-ads
-campaign
-creative
-preroll
-vast
-zone
-promo
-```
-
-Normal video paths may contain:
-
-```text
-video
-content
-media
-stream
-hls
-cdn
-```
-
-These are only clues. Always test.
-
-## Request Type
-
-The advertising request may be:
-
-```text
-media
-fetch
-xhr
-```
-
-The VAST instruction is often an `xhr` or `fetch` request, while the actual advertisement may appear under `media`.
-
----
-
-# 17. Blocking the Ad Instructions Instead of the Video
-
-Sometimes it is better to block the VAST or advertising instruction request.
-
-Example:
-
-```text
-/vast.php?zone=$domain=website.com
-```
-
-Meaning:
-
-> On `website.com`, block a request whose URL contains `/vast.php?zone=`.
-
-Another example:
-
-```text
-||ads.example.net/vast/$xhr,third-party,domain=website.com
-```
-
-This blocks an advertising instruction request classified as XHR.
-
-Why this may be better:
-
-- The player never receives the advertisement address.
-- You avoid blocking normal video media.
-- The rule can be narrower.
-
-Why it may fail:
-
-- The site may use several VAST addresses.
-- The request path may change.
-- The player may wait because it expected a response.
-
-Always test normal playback.
-
----
-
-# 18. What Is XHR or Fetch?
-
-XHR and Fetch are ways JavaScript asks a server for information.
-
-They are often used to request:
-
-- Advertising instructions.
-- Video metadata.
-- Tracking information.
-- Recommended content.
-- Login information.
-- Comments.
-
-Example rule:
-
-```text
-||ads.example.net/vast.php$xhr,third-party,domain=website.com
-```
-
-Do not block all XHR requests from the main website. That can break the entire page.
-
----
-
-# 19. How to Block a Popup or Casino Tab
-
-Start with:
-
-```text
-*$popup,domain=website.com
-*$popunder,domain=website.com
-```
-
-These rules target popup-style navigation.
-
-If the casino tab still opens, the page may be using a script.
-
-Use Developer Tools:
-
-1. Open **Network**.
-2. Select **JS**.
-3. Reload the page.
-4. Look for scripts with names containing `click`, `popup`, `popunder`, `redirect`, or `ad`.
-5. Test blocking one suspicious script.
-6. Confirm that normal links and video playback still work.
-
-Example:
-
-```text
-https://ads.example.net/js/click-popunder.js
-```
-
-Possible rule:
-
-```text
-||ads.example.net/js/click-popunder.js$script,third-party,domain=website.com
-```
-
-You may also block the advertising domain directly:
-
-```text
-||ads.example.net^$third-party,domain=website.com
-```
-
-This is broader and may block scripts, images, media, and other requests from that domain.
-
----
-
-# 20. How to Read a Network Request
-
-Example URL:
-
-```text
-https://ads.example.net/videos/casino-987.mp4?campaign=123
-```
-
-Breakdown:
-
-```text
-https://
-```
-
-Connection type.
-
-```text
-ads.example.net
-```
-
-Domain or hostname.
-
-```text
-/videos/
-```
-
-Folder or path.
-
-```text
-casino-987.mp4
-```
-
-Filename.
-
-```text
-?campaign=123
-```
-
-Extra query information.
-
-Possible narrow rule:
-
-```text
-||ads.example.net/videos/*.mp4$media,third-party,domain=website.com
-```
-
-Possible broader rule:
-
-```text
-||ads.example.net^$third-party,domain=website.com
-```
-
-Start narrow.
-
----
-
-# 21. Example: Hide a Banner
-
-Developer Tools shows:
-
-```html
-<div class="sponsored-banner">
-```
-
-Rule:
-
-```text
-website.com##.sponsored-banner
-```
-
-What it does:
-
-- Hides the banner.
-- Does not necessarily stop the ad from downloading.
-- Usually has low risk.
-
----
-
-# 22. Example: Hide One Unique Ad Box
-
-Developer Tools shows:
-
-```html
-<div id="casino-ad-box">
-```
-
-Rule:
-
-```text
-website.com###casino-ad-box
-```
-
-What it does:
-
-- Hides the element with that exact ID.
-- Usually affects only one element.
-
----
-
-# 23. Example: Block an Ad Script
-
-Network shows:
-
-```text
-https://ads-company.net/assets/popunder.js
-```
-
-Rule:
-
-```text
-||ads-company.net/assets/popunder.js$script,third-party,domain=website.com
-```
-
-What it does:
-
-- Blocks that specific JavaScript file.
-- May stop a popup.
-- Could break something if the script also controls normal page behavior.
-
-Test carefully.
-
----
-
-# 24. Example: Block an Advertising Video
-
-Network shows:
-
-```text
-https://video-ads.example.net/library/casino-456.mp4
-```
-
-Rule:
-
-```text
-||video-ads.example.net/library/*.mp4$media,third-party,domain=website.com
-```
-
-What it does:
-
-- Blocks MP4 files in that advertising folder.
-- Does not block every MP4 on the website.
-- Is safer than a global MP4 rule.
-
----
-
-# 25. Example: Block a VAST Request
-
-Network shows:
-
-```text
-https://ads.example.net/vast.php?idzone=12345
-```
-
-Possible rule:
-
-```text
-||ads.example.net/vast.php$xhr,third-party,domain=website.com
-```
-
-Another possible path-only rule:
-
-```text
-/vast.php?idzone=$domain=website.com
-```
-
-What it does:
-
-- Blocks the ad instruction request.
-- May prevent the player from discovering the preroll video.
-- May need adjustment if the player waits or fails.
-
----
-
-# 26. Example: Block a Whole Advertising Domain
-
-You repeatedly see requests to:
-
-```text
-casino-ads-network.example
-```
-
-Rule:
-
-```text
-||casino-ads-network.example^$third-party,domain=website.com
-```
-
-What it does:
-
-- Blocks scripts, images, media, and other third-party requests from that domain.
-- Only applies while visiting `website.com`.
-
-Use this when the entire domain appears to be advertising-only.
-
----
-
-# 27. Which Rule Should I Try First?
-
-Use this order:
-
-1. **Visible banner only**  
-   Try a cosmetic class or ID rule.
-
-2. **New casino tab**  
-   Try `$popup` and `$popunder`.
-
-3. **Popup continues**  
-   Find and block the popup script or advertising domain.
-
-4. **Short video ad before content**  
-   Find the VAST request or the advertising media domain.
-
-5. **Nothing else works**  
-   Try a broader rule temporarily, then narrow it.
-
-Do not start by blocking every script or every video file.
-
----
-
-# 28. Safe Testing Method
-
-Add only one or two new rules at a time.
-
-After each change:
-
-1. Commit the file on GitHub.
-2. Open the Raw URL.
-3. Confirm that the new rule is visible.
-4. Reload or reimport the source in Vivaldi.
-5. Close all tabs from the affected website.
-6. Reopen the website.
-7. Test several pages or videos.
-8. Confirm that normal playback still works.
-9. Confirm that links, buttons, and menus still work.
-
-If something breaks, disable the newest rule:
-
-```text
-! ||ads.example.net^$third-party,domain=website.com
-```
-
-Then commit and test again.
-
----
-
-# 29. How to Organize a New Website Section
-
-Add this near the bottom of `mobile-filters.txt`:
-
-```text
-! ==================================================
-! WEBSITE.COM
-! ==================================================
-
-! Popup and popunder rules
-
-! Advertising domains
-
-! Advertising scripts
-
-! Advertising video or VAST requests
-
-! Cosmetic rules
-
-! Experimental rules — disabled by default
-```
-
-Then add rules under the correct heading.
-
-Example:
-
-```text
-! ==================================================
-! WEBSITE.COM
-! ==================================================
-
-! Popup and popunder rules
-*$popup,domain=website.com
-*$popunder,domain=website.com
-
-! Advertising domains
-||ads-company.net^$third-party,domain=website.com
-
-! Advertising scripts
-||ads-company.net/js/popunder.js$script,third-party,domain=website.com
-
-! Advertising video or VAST requests
-||video-ads.example.net/library/*.mp4$media,third-party,domain=website.com
-
-! Cosmetic rules
-website.com##.sponsored-banner
-
-! Experimental rules — disabled by default
-! *.mp4$media,domain=website.com
-```
-
----
-
-# 30. Reloading the Source in Vivaldi
-
-When a change does not appear:
-
-1. Open Vivaldi.
-2. Open **Settings**.
-3. Open **Tracker and Ad Blocking**.
-4. Open **Sources**.
-5. Find your custom source.
-6. Disable and enable it again.
-
-If that fails:
-
-1. Remove the custom source.
-2. Fully close Vivaldi.
-3. Reopen Vivaldi.
-4. Import the same Raw GitHub URL again.
-
----
-
-# 31. Raw URL Reminder
-
-Correct style:
-
-```text
-https://raw.githubusercontent.com/USERNAME/browser-rules/main/mobile-filters.txt
-```
-
-Incorrect style:
-
-```text
-https://github.com/USERNAME/browser-rules/blob/main/mobile-filters.txt
-```
-
-The correct address contains:
-
-```text
-raw.githubusercontent.com
-```
-
-The incorrect address contains:
-
-```text
-/blob/
-```
-
----
-
-# 32. Information to Save When an Ad Escapes
-
-When a new advertisement appears, write down:
-
-- Website where it happened.
-- Whether it was a banner, popup, popunder, redirect, or video ad.
-- Exact destination domain of the new tab.
-- Whether it happened on the first tap or later.
-- Advertising request domain, if found.
-- Script filename, if found.
-- Video or VAST request URL, if found.
-- Whether normal playback still worked.
-- Vivaldi version and operating system.
-
-Example report:
-
 ```text
-Website: website.com
-Problem: New casino tab and five-second preroll
-Casino domain: casino-example.net
-Trigger: First tap on Play
-Suspicious script: https://ads-example.net/js/popunder.js
-Suspicious media: https://video-ads.example.net/library/ad-123.mp4
-Normal video after ad: Works
-Device: Android
+mobile-filters.txt
 ```
-
-This information makes it much easier to create a safe rule.
-
----
-
-# 33. Final Safety Rules
 
-- Use `domain=` whenever possible.
-- Prefer a specific file or folder over an entire domain.
-- Prefer an advertising domain over blocking every MP4.
-- Do not block the website's main video CDN unless you are certain.
-- Do not block every JavaScript file.
-- Test one change at a time.
-- Keep failed experiments commented out.
-- Keep backups of working versions.
-- Never include passwords, access tokens, email addresses, or private data.
+Only after that should new rules be proposed.
