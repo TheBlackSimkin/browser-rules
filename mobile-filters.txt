@@ -1,116 +1,144 @@
 [Adblock Plus 2.0]
 ! Title: A - TBS - Personal Mobile Filters
-! Description: Custom filtering rules for Vivaldi Mobile.
-! Version: 20260807.10
-! Last modified: 2026-08-07
+! Description: Conservative mobile filtering rules for Vivaldi Android.
+! Version: 20260811.1
+! Last modified: 2026-08-11
 ! Expires: 1 day
-! Compatibility: Vivaldi 7.6+ recommended; Adblock Plus and selected uBlock-style rules.
+!
+! Design rules:
+! - Mobile only.
+! - Keep normal playback, controls and previews working.
+! - No generic MP4/media blocking.
+! - No broad base64/data: cosmetic selectors.
+! - No uBlock-only ##+js(...) rules in the active list.
+! - Prefer narrow site-specific rules.
+!
+! Public section names are deliberately neutral.
+! See CURRENT-STATE.MD for maintenance context.
 
-! ==================== Site group A ====================
-! XVideos: page ads, click-triggered popup/popunder and in-player preroll
 
-! Known first-party ad and tracking paths
-||xvideos.com/zoneload/$domain=xvideos.com
-||xvideos.com/picserror/$domain=xvideos.com
+! =====================================================
+! GROUP A
+! =====================================================
+
+! Known first-party advertising paths.
+||xvideos.com/zoneload/
+||xvideos2.com/zoneload/
+
 ||xvideos.com/lvcsm/abck-banners/
+||xvideos2.com/lvcsm/abck-banners/
 
-! Known ad provider
-||orbsrv.com^$third-party,domain=xvideos.com
-||a.orbsrv.com/ad-provider.js$script,third-party,domain=xvideos.com
+! Known third-party advertising provider.
+||orbsrv.com^$third-party,domain=xvideos.com|xvideos2.com
 
-! Block VAST ad manifests used to select in-player prerolls
-/vast.php?idzone=$domain=xvideos.com
+! VAST request used for in-player advertising selection.
+! Blocking the instruction is safer than blocking arbitrary video media.
+/vast.php?idzone=$domain=xvideos.com|xvideos2.com
 
-! Current fallback for short MP4 prerolls whose delivery host rotates.
-! Restrict to third-party media first, then replace when redirect-rule is supported.
-*.mp4$media,third-party,domain=xvideos.com
-*.mp4$media,third-party,domain=xvideos.com,redirect-rule=noopmp4-1s
+! Click-created popup / popunder navigation.
+*$popup,domain=xvideos.com|xvideos2.com
+*$popunder,domain=xvideos.com|xvideos2.com
 
-! Block advertising popup/popunder navigations initiated from XVideos.
-*$popup,domain=xvideos.com
+! Known advertising links and containers.
+xvideos.com,xvideos2.com##a[href*="/go.php?"][href*="&ad="]
+xvideos.com,xvideos2.com###video-right
+xvideos.com,xvideos2.com###video-sponsor-links
+xvideos.com,xvideos2.com##.player-video.xv-cams-block
+xvideos.com,xvideos2.com##.thumb-ad
+xvideos.com,xvideos2.com##.video-ad
 
-! Remove known advertising links and containers
-xvideos.com##a[href*="/go.php?"][href*="&ad="]
-xvideos.com###video-right
-xvideos.com###video-sponsor-links
-xvideos.com###ad-footer
-xvideos.com##.player-video.xv-cams-block
-xvideos.com##.thumb-ad
-xvideos.com##.video-ad
-xvideos.com##.remove-ads > *
-xvideos.com##.e-banner-game
-xvideos.com##.top-top
-xvideos.com##[href*="base64"]
-xvideos.com##[href*="data:"]
 
-! uBlock-style scriptlets used by maintained upstream filters to suppress
-! window.open/popunder behavior and the click handler named ShouldShow.
-! Vivaldi versions without scriptlet support will ignore these lines.
-xvideos.com,xvideos2.com##+js(nowoif)
-xvideos.com,xvideos2.com##+js(aeld, click, ShouldShow)
+! =====================================================
+! GROUP B
+! =====================================================
 
-! ==================== Site group B ====================
-! HentaiHaven
+! Known third-party advertising / redirect endpoints.
 ||a.adtng.com^$third-party,domain=hentaihaven.xxx
+||havenclick.com^$third-party,domain=hentaihaven.xxx
+||ads-twitter.com^$third-party,domain=hentaihaven.xxx
+
+! Known advertising asset path.
 ||cdn.pornhaven.ai/design/ads/$domain=hentaihaven.xxx
+
+! Known first-party script-manager advertising component.
+||hentaihaven.xxx/wp-content/plugins/script-manager/assets/js/script-manager.js$script
+
+! Click-created popup / popunder navigation.
+*$popup,domain=hentaihaven.xxx
+*$popunder,domain=hentaihaven.xxx
+
+! Known advertising containers.
 hentaihaven.xxx##iframe[src^="https://a.adtng.com/"]
-hentaihaven.xxx##.script_manager_video_master
-hentaihaven.xxx##.vrav_a_pc
 hentaihaven.xxx##.popecrazy
 hentaihaven.xxx##.hhzt
 hentaihaven.xxx##.code-block
-hentaihaven.xxx##.aloading > div[class*=" col-md-zarat "]:has(> .related-reading-wrap > .widget-thumbnail > ins[data-revive-zoneid])
-
-! ==================== Optional aggressive fallback ====================
-! Leave disabled unless the five-second preroll remains.
-! This may block legitimate MP4 playback if XVideos changes its delivery format.
-! *.mp4$media,domain=xvideos.com
-! *.mp4$media,domain=xvideos.com,redirect-rule=noopmp4-1s
-
-
+hentaihaven.xxx##.vrav_a_pc
 
 
 ! =====================================================
-! JUGABET — COMPLETE DOMAIN BLOCK
+! R1
 ! =====================================================
 
-! Block all connections to Jugabet and its subdomains
+! Block known unwanted destination family.
 ||jugabet.com^
 ||jugabet.cl^
 ||jugabet.mx^
 
-! Block direct navigation to Jugabet pages
 ||jugabet.com^$document
 ||jugabet.cl^$document
 ||jugabet.mx^$document
 
-! Block popup and popunder tabs leading to Jugabet
 ||jugabet.com^$popup
-||jugabet.com^$popunder
 ||jugabet.cl^$popup
-||jugabet.cl^$popunder
 ||jugabet.mx^$popup
+
+||jugabet.com^$popunder
+||jugabet.cl^$popunder
 ||jugabet.mx^$popunder
 
 
 ! =====================================================
-! BETANO — COMPLETE DOMAIN BLOCK
+! R2
 ! =====================================================
 
-! Block all connections to Betano and its subdomains
+! Block known unwanted destination family.
 ||betano.com^
 ||betano.cl^
 ||betano.mx^
 
-! Block direct navigation to Betano pages
 ||betano.com^$document
 ||betano.cl^$document
 ||betano.mx^$document
 
-! Block popup and popunder tabs leading to Betano
 ||betano.com^$popup
-||betano.com^$popunder
 ||betano.cl^$popup
-||betano.cl^$popunder
 ||betano.mx^$popup
+
+||betano.com^$popunder
+||betano.cl^$popunder
 ||betano.mx^$popunder
+
+
+! =====================================================
+! SAFETY NOTES
+! =====================================================
+
+! DO NOT add rules such as:
+!
+! *.mp4$media,domain=...
+! *.mp4$media,third-party,domain=...
+!
+! They can block legitimate playback and preview media.
+!
+! DO NOT add broad cosmetic rules such as:
+!
+! example.com##[href*="base64"]
+! example.com##[href*="data:"]
+!
+! without proving they are harmless.
+!
+! DO NOT hide a complete player/container merely because an ad
+! appears somewhere inside it.
+!
+! If something survives, identify that specific request or element
+! and add one narrow rule instead.
