@@ -1,17 +1,18 @@
 [Adblock Plus 2.0]
 ! Title: A - TBS - Personal Mobile Filters
 ! Description: Conservative mobile filtering rules for Vivaldi Android.
-! Version: 20260811.1
-! Last modified: 2026-08-11
-! Expires: 1 day
+! Version: 202:contentReference[oaicite:0]{index=0}pires: 1 day
 !
 ! Design rules:
 ! - Mobile only.
 ! - Keep normal playback, controls and previews working.
-! - No generic MP4/media blocking.
-! - No broad base64/data: cosmetic selectors.
-! - No uBlock-only ##+js(...) rules in the active list.
+! - NO generic MP4/media blocking.
+! - NO broad base64/data: cosmetic selectors.
 ! - Prefer narrow site-specific rules.
+! - Scriptlet/content-injection rules are allowed only when:
+!     1. there is a specific confirmed problem,
+!     2. an upstream maintained list uses the same technique,
+!     3. the rule is clearly marked for testing.
 !
 ! Public section names are deliberately neutral.
 ! See CURRENT-STATE.MD for maintenance context.
@@ -21,28 +22,85 @@
 ! GROUP A
 ! =====================================================
 
-! Known first-party advertising paths.
+! -----------------------------------------------------
+! First-party advertising paths
+! -----------------------------------------------------
+
 ||xvideos.com/zoneload/
 ||xvideos2.com/zoneload/
 
 ||xvideos.com/lvcsm/abck-banners/
 ||xvideos2.com/lvcsm/abck-banners/
 
-! Known third-party advertising provider.
+
+! -----------------------------------------------------
+! Known third-party advertising provider
+! -----------------------------------------------------
+
 ||orbsrv.com^$third-party,domain=xvideos.com|xvideos2.com
 
-! VAST request used for in-player advertising selection.
-! Blocking the instruction is safer than blocking arbitrary video media.
+
+! -----------------------------------------------------
+! In-player advertising selection
+! -----------------------------------------------------
+
+! Block the advertising instruction rather than normal
+! video media.
 /vast.php?idzone=$domain=xvideos.com|xvideos2.com
 
-! Click-created popup / popunder navigation.
+
+! -----------------------------------------------------
+! Narrow advertising media path
+! -----------------------------------------------------
+
+! 20260811.2:
+! Current EasyList specifically identifies MP4 files under
+! aucdn.net/library/ as advertising media on XVideos/XNXX.
+!
+! IMPORTANT:
+! This is deliberately NOT:
+!
+! *.mp4$media
+!
+! Only this known third-party path is affected.
+
+||aucdn.net/library/*.mp4$media,third-party,domain=xvideos.com|xvideos2.com
+
+
+! -----------------------------------------------------
+! Click-created popup / popunder navigation
+! -----------------------------------------------------
+
 *$popup,domain=xvideos.com|xvideos2.com
 *$popunder,domain=xvideos.com|xvideos2.com
 
-! Known advertising links and containers.
+
+! -----------------------------------------------------
+! EXPERIMENTAL 20260811.2
+! First-click advertising handler
+! -----------------------------------------------------
+
+! Current uBlock-maintained rules identify a click listener
+! containing "ShouldShow" as part of XVideos popup behavior.
+!
+! Vivaldi 7.9+ improved uBlock-format content-injection
+! compatibility.
+!
+! This rule is intentionally much narrower than disabling
+! JavaScript or disabling window.open everywhere.
+
+xvideos.com,xvideos2.com##+js(aeld, click, ShouldShow)
+
+
+! -----------------------------------------------------
+! Known advertising links and containers
+! -----------------------------------------------------
+
 xvideos.com,xvideos2.com##a[href*="/go.php?"][href*="&ad="]
+
 xvideos.com,xvideos2.com###video-right
 xvideos.com,xvideos2.com###video-sponsor-links
+
 xvideos.com,xvideos2.com##.player-video.xv-cams-block
 xvideos.com,xvideos2.com##.thumb-ad
 xvideos.com,xvideos2.com##.video-ad
@@ -52,22 +110,41 @@ xvideos.com,xvideos2.com##.video-ad
 ! GROUP B
 ! =====================================================
 
-! Known third-party advertising / redirect endpoints.
+! -----------------------------------------------------
+! Known third-party advertising / redirect endpoints
+! -----------------------------------------------------
+
 ||a.adtng.com^$third-party,domain=hentaihaven.xxx
 ||havenclick.com^$third-party,domain=hentaihaven.xxx
 ||ads-twitter.com^$third-party,domain=hentaihaven.xxx
 
-! Known advertising asset path.
+
+! -----------------------------------------------------
+! Known advertising asset path
+! -----------------------------------------------------
+
 ||cdn.pornhaven.ai/design/ads/$domain=hentaihaven.xxx
 
-! Known first-party script-manager advertising component.
+
+! -----------------------------------------------------
+! Known first-party script-manager advertising component
+! -----------------------------------------------------
+
 ||hentaihaven.xxx/wp-content/plugins/script-manager/assets/js/script-manager.js$script
 
-! Click-created popup / popunder navigation.
+
+! -----------------------------------------------------
+! Click-created popup / popunder navigation
+! -----------------------------------------------------
+
 *$popup,domain=hentaihaven.xxx
 *$popunder,domain=hentaihaven.xxx
 
-! Known advertising containers.
+
+! -----------------------------------------------------
+! Known advertising containers
+! -----------------------------------------------------
+
 hentaihaven.xxx##iframe[src^="https://a.adtng.com/"]
 hentaihaven.xxx##.popecrazy
 hentaihaven.xxx##.hhzt
@@ -80,6 +157,7 @@ hentaihaven.xxx##.vrav_a_pc
 ! =====================================================
 
 ! Block known unwanted destination family.
+
 ||jugabet.com^
 ||jugabet.cl^
 ||jugabet.mx^
@@ -102,6 +180,7 @@ hentaihaven.xxx##.vrav_a_pc
 ! =====================================================
 
 ! Block known unwanted destination family.
+
 ||betano.com^
 ||betano.cl^
 ||betano.mx^
@@ -120,6 +199,32 @@ hentaihaven.xxx##.vrav_a_pc
 
 
 ! =====================================================
+! R3
+! =====================================================
+
+! Added 20260811.2 after physical-device test:
+! unwanted first-click destination observed from Group A.
+!
+! Completely blocking this destination family is intentional.
+
+||stripchat.com^
+||strip.chat^
+||stripchat.global^
+
+||stripchat.com^$document
+||strip.chat^$document
+||stripchat.global^$document
+
+||stripchat.com^$popup
+||strip.chat^$popup
+||stripchat.global^$popup
+
+||stripchat.com^$popunder
+||strip.chat^$popunder
+||stripchat.global^$popunder
+
+
+! =====================================================
 ! SAFETY NOTES
 ! =====================================================
 
@@ -130,6 +235,13 @@ hentaihaven.xxx##.vrav_a_pc
 !
 ! They can block legitimate playback and preview media.
 !
+! A narrow proven path such as:
+!
+! ||known-ad-host.example/ad-path/*.mp4$media,domain=...
+!
+! is different and may be acceptable after evidence/testing.
+!
+!
 ! DO NOT add broad cosmetic rules such as:
 !
 ! example.com##[href*="base64"]
@@ -137,8 +249,11 @@ hentaihaven.xxx##.vrav_a_pc
 !
 ! without proving they are harmless.
 !
+!
+! DO NOT disable all JavaScript on a video site.
+!
 ! DO NOT hide a complete player/container merely because an ad
 ! appears somewhere inside it.
 !
-! If something survives, identify that specific request or element
-! and add one narrow rule instead.
+! If something survives, identify that specific request,
+! handler or element and add one narrow rule instead.
