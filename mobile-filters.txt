@@ -1,29 +1,26 @@
 [Adblock Plus 2.0]
 ! Title: A - TBS - Personal Mobile Filters
 ! Description: Conservative mobile filtering rules for Vivaldi Android.
-! Version: 20260811.3
+! Version: 20260811.4
 ! Last modified: 2026-08-11
 ! Expires: 1 day
 !
 ! Design rules:
 ! - Mobile only.
-! - Keep normal playback, controls and previews working.
+! - Preserve normal playback, controls and previews.
 ! - NO generic MP4/media blocking.
-! - NO broad base64/data: cosmetic selectors.
+! - NO broad JavaScript blocking.
 ! - Prefer narrow site-specific rules.
-! - Scriptlet/content-injection rules are allowed only when:
-!     1. there is a specific confirmed problem,
-!     2. an upstream maintained list uses the same technique,
-!     3. the rule is clearly marked for testing.
 !
-! 20260811.3:
-! - Removed failed ShouldShow experiment from .2.
-! - Changed known XVideos ad MP4 from outright blocking
-!   to harmless MP4 redirection.
-! - Added targeted exoJsPop101 popup prevention.
-! - Strengthened R1 blocking after real-device redirect test.
+! 20260811.4:
+! - Keep successful .3 exoJsPop101 intervention.
+! - Replace uBO-style MP4 redirect experiment with the
+!   exact ABP/EasyList blank-mp4 rewrite syntax.
+! - Add current upstream nowoif popup protection.
+! - Add targeted same-tab navigation protection for
+!   known unwanted destination names.
+! - Strengthen whole-document fallback blocking.
 !
-! Public section names are deliberately neutral.
 ! See CURRENT-STATE.MD for maintenance context.
 
 
@@ -43,7 +40,7 @@
 
 
 ! -----------------------------------------------------
-! Known third-party advertising provider
+! Known advertising provider
 ! -----------------------------------------------------
 
 ||orbsrv.com^$third-party,domain=xvideos.com|xvideos2.com
@@ -57,29 +54,28 @@
 
 
 ! -----------------------------------------------------
-! Narrow advertising media replacement
+! Known advertising media
 ! -----------------------------------------------------
 
 ! IMPORTANT:
-! This is NOT generic MP4 blocking.
+! This does NOT block arbitrary MP4 files.
 !
-! EasyList specifically identifies:
+! Current EasyList specifically rewrites MP4 media from:
 !
-! aucdn.net/library/*.mp4
+! aucdn.net/library/
 !
-! as advertising media on XVideos and related sites.
+! on XVideos to a harmless blank MP4.
 !
-! .2 simply blocked the request. That did not remove
-! the observed pre/post ads.
+! .3 used:
+! redirect=noopmp4-1s
 !
-! .3 instead replaces only this known ad-media path
-! with a harmless blank/no-op MP4 resource.
+! .4 tests the exact EasyList / ABP syntax instead.
 
-||aucdn.net/library/*.mp4$media,third-party,redirect=noopmp4-1s,domain=xvideos.com|xvideos2.com
+||aucdn.net/library/*.mp4$rewrite=abp-resource:blank-mp4,domain=xvideos.com|xvideos2.com
 
 
 ! -----------------------------------------------------
-! Basic popup / popunder navigation
+! Popup / popunder protection
 ! -----------------------------------------------------
 
 *$popup,domain=xvideos.com|xvideos2.com
@@ -87,26 +83,47 @@
 
 
 ! -----------------------------------------------------
-! EXPERIMENTAL 20260811.3
-! Specific advertising popup property
+! Popup JavaScript protection
 ! -----------------------------------------------------
 
-! .2 used:
-!
-! ##+js(aeld, click, ShouldShow)
-!
-! Real-device result was unacceptable:
-! the unwanted destination changed from a new tab
-! to replacing the current XVideos tab.
-!
-! That rule has therefore been REMOVED.
-!
-! Current maintained AdGuard filters instead identify
-! exoJsPop101 as an advertising popup component on XVideos.
-!
-! Test only this more specific intervention.
+! Kept from .3.
+! Real-device result:
+! first-click redirect disappeared.
 
 xvideos.com,xvideos2.com#%#//scriptlet('abort-on-property-read', 'exoJsPop101')
+
+
+! -----------------------------------------------------
+! EXPERIMENTAL 20260811.4
+! window.open protection
+! -----------------------------------------------------
+
+! Current uBlock maintained rules use nowoif on XVideos.
+!
+! Unlike the failed .2 ShouldShow experiment, we are NOT
+! restoring that rule here.
+
+xvideos.com,xvideos2.com##+js(nowoif)
+
+
+! -----------------------------------------------------
+! EXPERIMENTAL 20260811.4
+! Same-tab navigation protection
+! -----------------------------------------------------
+
+! These rules are specifically intended to stop unwanted
+! navigation away from XVideos while still permitting
+! normal XVideos navigation.
+!
+! They target destination strings only.
+
+xvideos.com,xvideos2.com#%#//scriptlet('prevent-navigation', 'stripchat')
+xvideos.com,xvideos2.com#%#//scriptlet('prevent-navigation', 'strip.chat')
+
+xvideos.com,xvideos2.com#%#//scriptlet('prevent-navigation', 'jugabet')
+xvideos.com,xvideos2.com#%#//scriptlet('prevent-navigation', 'juego-bet')
+
+xvideos.com,xvideos2.com#%#//scriptlet('prevent-navigation', 'betano')
 
 
 ! -----------------------------------------------------
@@ -122,10 +139,17 @@ xvideos.com,xvideos2.com##.player-video.xv-cams-block
 xvideos.com,xvideos2.com##.thumb-ad
 xvideos.com,xvideos2.com##.video-ad
 
+xvideos.com,xvideos2.com###ad-footer
+xvideos.com,xvideos2.com##.e-banner-game
+
 
 ! =====================================================
 ! GROUP B
 ! =====================================================
+
+! No new Group B experiments yet.
+! Group B remains untouched until Group A is stable.
+
 
 ! -----------------------------------------------------
 ! Known third-party advertising / redirect endpoints
@@ -144,14 +168,14 @@ xvideos.com,xvideos2.com##.video-ad
 
 
 ! -----------------------------------------------------
-! Known first-party script-manager advertising component
+! Known first-party advertising component
 ! -----------------------------------------------------
 
 ||hentaihaven.xxx/wp-content/plugins/script-manager/assets/js/script-manager.js$script
 
 
 ! -----------------------------------------------------
-! Click-created popup / popunder navigation
+! Popup / popunder
 ! -----------------------------------------------------
 
 *$popup,domain=hentaihaven.xxx
@@ -173,11 +197,7 @@ hentaihaven.xxx##.vrav_a_pc
 ! R1
 ! =====================================================
 
-! Block known unwanted destination family.
-!
-! .3 deliberately includes both exact known hosts
-! and a "jugabet" substring fallback because a real-device
-! test reached an unaccounted-for JUGABET destination.
+! Known unwanted destination family.
 
 ||jugabet.com^
 ||jugabet.cl^
@@ -203,12 +223,20 @@ hentaihaven.xxx##.vrav_a_pc
 ||play-jugabet.net^$popunder
 ||juego-bet.cl^$popunder
 
-! Brand-string fallback.
-!
-! This is intentionally broader than the exact-domain rules.
-! The user wants this destination family blocked completely.
 
-*jugabet*
+! Whole-document brand fallback.
+!
+! Unlike the old plain *jugabet* rule, $document explicitly
+! targets top-level page navigation.
+
+*jugabet*$document
+*juego-bet*$document
+
+*jugabet*$popup
+*juego-bet*$popup
+
+*jugabet*$popunder
+*juego-bet*$popunder
 
 
 ! =====================================================
@@ -231,6 +259,10 @@ hentaihaven.xxx##.vrav_a_pc
 ||betano.cl^$popunder
 ||betano.mx^$popunder
 
+*betano*$document
+*betano*$popup
+*betano*$popunder
+
 
 ! =====================================================
 ! R3
@@ -252,47 +284,54 @@ hentaihaven.xxx##.vrav_a_pc
 ||strip.chat^$popunder
 ||stripchat.global^$popunder
 
+! Whole-document brand fallback.
+
+*stripchat*$document
+*stripchat*$popup
+*stripchat*$popunder
+
 
 ! =====================================================
-! SAFETY NOTES
+! SAFETY / HISTORY
 ! =====================================================
 
-! DO NOT add:
+! NEVER restore generic rules such as:
 !
 ! *.mp4$media,domain=...
 ! *.mp4$media,third-party,domain=...
 !
-! Those can break legitimate playback and previews.
+! They previously endangered legitimate playback,
+! thumbnail previews and normal player behavior.
 !
 !
-! A narrow proven path such as:
+! The narrow EasyList rule:
 !
-! ||known-ad-host.example/ad-path/*.mp4$media,domain=...
+! ||aucdn.net/library/*.mp4$rewrite=abp-resource:blank-mp4,...
 !
-! is fundamentally different.
-!
-!
-! DO NOT add broad cosmetic rules such as:
-!
-! example.com##[href*="base64"]
-! example.com##[href*="data:"]
-!
-! without proving they are harmless.
+! is fundamentally different because it identifies one
+! known advertising media path.
 !
 !
-! DO NOT disable all JavaScript on a video site.
+! DO NOT block all JavaScript.
 !
-! DO NOT hide a complete player/container merely because
-! an advertisement appears somewhere inside it.
+! DO NOT hide the entire player.
 !
-!
-! If a scriptlet changes unwanted NEW-TAB behavior into
-! unwanted SAME-TAB navigation, treat that experiment as
-! FAILED and remove it.
+! DO NOT hide broad video/media containers.
 !
 !
-! Success means:
+! FAILED EXPERIMENT:
 !
-! unwanted behavior gone
-! AND
-! normal site behavior intact.
+! 20260811.2
+! xvideos.com,xvideos2.com##+js(aeld, click, ShouldShow)
+!
+! On the target Vivaldi Android device this changed an
+! unwanted new-tab redirect into unwanted SAME-TAB
+! navigation.
+!
+! Do not restore that rule by itself.
+!
+!
+! Success means BOTH:
+!
+! 1. unwanted behavior is gone
+! 2. normal site behavior remains intact
