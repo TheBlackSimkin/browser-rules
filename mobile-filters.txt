@@ -1,7 +1,7 @@
 [Adblock Plus 2.0]
 ! Title: A - TBS - Personal Mobile Filters
 ! Description: Conservative mobile filtering rules for Vivaldi Android.
-! Version: 20260811.6
+! Version: 20260811.7
 ! Last modified: 2026-08-11
 ! Expires: 1 day
 !
@@ -10,14 +10,13 @@
 ! No generic MP4/media blocking.
 ! No broad JavaScript blocking.
 !
-! 20260811.6:
-! - Freeze HH because it currently behaves correctly.
-! - Remove ineffective experimental XV scriptlets/rewrite rules.
-! - Use real-device-observed XV redirect infrastructure.
-! - Aggressively block anything identified as XVLIVECAMS.
-! - Aggressively block DSCERI after real-device observation.
-! - Do NOT touch XVideos CDN/HLS hosts.
-! - Pre/post-roll video ads remain UNSOLVED.
+! 20260811.7:
+! - Keep successful .6 network blocking.
+! - Pre/post-roll ads disappeared in real-device testing.
+! - DSCERI navigation is successfully blocked by Vivaldi.
+! - Add conservative cosmetic/link removal to try to stop
+!   the redirect BEFORE it replaces the current tab.
+! - Do NOT block BXCDN or XVideos HLS/CDN infrastructure.
 
 
 ! =====================================================
@@ -57,14 +56,11 @@
 ! Google advertising endpoint
 ! -----------------------------------------------------
 
-! Site-scoped.
-! DO NOT block Google/gstatic globally.
-
 ||googleadservices.com^$third-party,domain=xvideos.com|xvideos2.com
 
 
 ! -----------------------------------------------------
-! Cosmetic rules
+! Known advertising containers
 ! -----------------------------------------------------
 
 xvideos.com,xvideos2.com##a[href*="/go.php?"][href*="&ad="]
@@ -80,17 +76,62 @@ xvideos.com,xvideos2.com###ad-footer
 xvideos.com,xvideos2.com##.e-banner-game
 
 
+! -----------------------------------------------------
+! 20260811.7
+! Redirect-trigger element cleanup
+! -----------------------------------------------------
+
+! .6 successfully blocks the destination itself, but the
+! browser can still leave XVideos and display:
+!
+! ERR_BLOCKED_BY_CLIENT
+!
+! These cosmetic rules try to remove elements whose URL
+! already identifies a known unwanted destination.
+!
+! Unlike scriptlets, these are ordinary cosmetic selectors.
+
+
+! DSCERI
+
+xvideos.com,xvideos2.com##a[href*="dsceri.com"]
+xvideos.com,xvideos2.com##[href*="dsceri.com"]
+xvideos.com,xvideos2.com##iframe[src*="dsceri.com"]
+
+
+! XVLIVECAMS
+
+xvideos.com,xvideos2.com##a[href*="xvlivecams"]
+xvideos.com,xvideos2.com##[href*="xvlivecams"]
+xvideos.com,xvideos2.com##iframe[src*="xvlivecams"]
+
+
+! STRIPCHAT
+
+xvideos.com,xvideos2.com##a[href*="stripchat"]
+xvideos.com,xvideos2.com##a[href*="strip.chat"]
+xvideos.com,xvideos2.com##[href*="stripchat"]
+xvideos.com,xvideos2.com##[href*="strip.chat"]
+
+
+! JUGABET
+
+xvideos.com,xvideos2.com##a[href*="jugabet"]
+xvideos.com,xvideos2.com##[href*="jugabet"]
+
+
+! BETANO
+
+xvideos.com,xvideos2.com##a[href*="betano"]
+xvideos.com,xvideos2.com##[href*="betano"]
+
+
 ! =====================================================
 ! GROUP B
 ! =====================================================
 
-! HH IS CURRENTLY WORKING ACCEPTABLY.
-!
-! No intrusive advertising or redirect behavior was observed
-! during the current physical-device test.
-!
-! FREEZE this section unless an actual problem appears.
-
+! HH currently behaves correctly on the physical device.
+! Freeze unless an actual intrusive problem appears.
 
 ||a.adtng.com^$third-party,domain=hentaihaven.xxx
 ||havenclick.com^$third-party,domain=hentaihaven.xxx
@@ -114,15 +155,11 @@ hentaihaven.xxx##.vrav_a_pc
 ! R1 — JUGABET
 ! =====================================================
 
-! Explicit known domains.
-
 ||jugabet.com^
 ||jugabet.cl^
 ||jugabet.mx^
 
 ||win.jugabet.cl^
-
-! Navigation blocking.
 
 ||jugabet.com^$document
 ||jugabet.cl^$document
@@ -135,8 +172,6 @@ hentaihaven.xxx##.vrav_a_pc
 ||jugabet.com^$popunder
 ||jugabet.cl^$popunder
 ||jugabet.mx^$popunder
-
-! Aggressive brand fallback.
 
 *jugabet*
 
@@ -165,8 +200,6 @@ hentaihaven.xxx##.vrav_a_pc
 ||betano.cl^$popunder
 ||betano.mx^$popunder
 
-! Aggressive brand fallback.
-
 *betano*
 
 *betano*$document
@@ -194,8 +227,6 @@ hentaihaven.xxx##.vrav_a_pc
 ||strip.chat^$popunder
 ||stripchat.global^$popunder
 
-! Aggressive brand fallback.
-
 *stripchat*
 
 *stripchat*$document
@@ -207,45 +238,15 @@ hentaihaven.xxx##.vrav_a_pc
 ! R4 — XVLIVECAMS
 ! =====================================================
 
-! User preference:
-!
-! AGGRESSIVELY BLOCK anything containing:
-!
-! xvlivecams
-!
-! Real-device observation included:
-!
-! xvlivecams.com
-! xvlivecamsmmcdn
-!
-! There is no desired use for this family in this project.
-
-
-! Exact known domain.
+! Aggressive block by user preference.
 
 ||xvlivecams.com^
-
-
-! Exact navigation protection.
 
 ||xvlivecams.com^$document
 ||xvlivecams.com^$popup
 ||xvlivecams.com^$popunder
 
-
-! Aggressive substring block.
-!
-! Intended to catch:
-!
-! xvlivecams
-! xvlivecamsmmcdn
-! cdn-xvlivecams-...
-! future URLs containing the same identifying string.
-
 *xvlivecams*
-
-
-! Explicit navigation fallbacks.
 
 *xvlivecams*$document
 *xvlivecams*$popup
@@ -256,42 +257,26 @@ hentaihaven.xxx##.vrav_a_pc
 ! R5 — DSCERI
 ! =====================================================
 
-! Real-device PCAPdroid observation:
+! Real-device observation:
 !
 ! s.dsceri.com
 !
-! Purpose could not be reliably established.
+! .6 physical-device result:
 !
-! User does not trust/want this infrastructure.
-! Treat DSCERI as unwanted.
+! - pre-roll disappeared
+! - post-roll disappeared
+! - attempted same-tab navigation to s.dsceri.com
+!   produced ERR_BLOCKED_BY_CLIENT
 !
-! This block is deliberately aggressive.
-
-
-! Exact observed domain family.
+! Keep aggressive block.
 
 ||dsceri.com^
-
-
-! Exact navigation protection.
 
 ||dsceri.com^$document
 ||dsceri.com^$popup
 ||dsceri.com^$popunder
 
-
-! Aggressive substring fallback.
-!
-! Intended to catch:
-!
-! dsceri.com
-! s.dsceri.com
-! future URLs/hosts containing "dsceri".
-
 *dsceri*
-
-
-! Explicit navigation fallbacks.
 
 *dsceri*$document
 *dsceri*$popup
@@ -302,150 +287,115 @@ hentaihaven.xxx##.vrav_a_pc
 ! PROTECTED / DO-NOT-BLOCK INFRASTRUCTURE
 ! =====================================================
 
-! Real-device PCAPdroid observation strongly indicates that
-! normal XVideos HLS playback uses:
-!
-! hls.cdn77.xvideos-cdn.com
-!
 ! DO NOT BLOCK:
 !
+! hls.cdn77.xvideos-cdn.com
 ! xvideos-cdn.com
 ! cdn77.xvideos-cdn.com
-! hls.cdn77.xvideos-cdn.com
 !
-! unless future evidence isolates a completely separate
-! advertising-only path.
+! These appear related to legitimate XVideos media delivery.
 !
 !
-! Also DO NOT globally block:
+! DO NOT BLOCK FOR NOW:
 !
-! gstatic.com
+! n2j9y0x0.bxcdn.net
+! *.bxcdn.net
+!
+! PCAPdroid showed large media-sized transfers from BXCDN,
+! but .6 removed the observed video ads without requiring
+! us to block BXCDN.
+!
+! Therefore leave it untouched unless future evidence
+! proves it necessary.
+!
+!
+! DO NOT globally block:
+!
 ! google.com
-!
-! www.gstatic.com was observed but is normal general-purpose
-! infrastructure and is NOT classified as unwanted here.
+! gstatic.com
 
 
 ! =====================================================
 ! SAFETY / HISTORY
 ! =====================================================
 
-! NEVER restore generic rules such as:
+! NEVER restore:
 !
 ! *.mp4$media,domain=...
 ! *.mp4$media,third-party,domain=...
-!
-! Those previously endangered legitimate playback,
-! previews and thumbnails.
-!
-!
-! DO NOT broadly block:
-!
 ! *.m3u8
-! *xvideos-cdn*
-! *cdn77*
 !
-! Normal playback currently depends on XVideos HLS/CDN
-! infrastructure.
+! These can damage legitimate media.
 !
 !
 ! DO NOT block all JavaScript.
-!
-! DO NOT hide the entire video player.
-!
-! DO NOT hide broad video/media containers.
+! DO NOT hide entire players.
+! DO NOT broadly block XVideos CDN infrastructure.
 !
 !
-! -----------------------------------------------------
-! FAILED / INEFFECTIVE EXPERIMENTS
-! -----------------------------------------------------
+! FAILED / INEFFECTIVE EXPERIMENTS:
 !
-! 20260811.2:
-!
+! .2
 ! ##+js(aeld, click, ShouldShow)
 !
-! Result:
-! unwanted NEW-TAB navigation changed into unwanted
-! SAME-TAB navigation.
+! .3
+! aucdn redirect=noopmp4-1s
 !
-!
-! 20260811.3:
-!
-! aucdn redirect=noopmp4-1s experiment
-!
-! Result:
-! pre/post-roll remained.
-!
-!
-! 20260811.4:
-!
-! ABP blank-MP4 rewrite
-! ##+js(nowoif)
-! prevent-navigation scriptlets
+! .4
+! blank-MP4 rewrite
+! nowoif
+! prevent-navigation
 ! exoJsPop101 combination
 !
-! Result:
-! no meaningful improvement.
-! SAME-TAB redirects persisted.
-! Pre/post-roll persisted.
+! Do not restore merely because upstream filters contain them.
 !
 !
-! These experiments should not be restored merely because
-! they exist in upstream uBlock/AdGuard/EasyList rules.
+! Target browser:
 !
-! The target browser is Vivaldi Android 8.1.4099.79,
-! and real-device behavior takes precedence.
+! Vivaldi Android 8.1.4099.79
 
 
 ! =====================================================
 ! CURRENT STATUS
 ! =====================================================
 
-! GROUP A:
+! GROUP A — after .6 physical-device test:
 !
 ! WORKING:
 ! - thumbnails
 ! - previews
 ! - normal video
 ! - play/pause
-! - seek/timeline
+! - seek
 ! - volume
 ! - fullscreen
-! - visible banners substantially reduced/removed
 !
-! UNSOLVED:
-! - pre-roll video advertisement
-! - post-roll video advertisement
+! IMPROVED:
+! - pre-roll ad not observed
+! - post-roll ad not observed
 !
-! CURRENT EXPERIMENT:
-! - aggressively block real-device-observed redirect
-!   infrastructure:
+! BLOCKER SUCCESS:
+! - navigation to s.dsceri.com is blocked
 !
-!   JUGABET
-!   BETANO
-!   STRIPCHAT
-!   XVLIVECAMS
-!   DSCERI
+! REMAINING UX PROBLEM:
+! - attempted same-tab redirect can replace XVideos with
+!   ERR_BLOCKED_BY_CLIENT
+!
+! .7 tests cosmetic removal of known redirect links/elements.
 !
 !
 ! GROUP B:
 !
-! Current real-device observation:
-! no intrusive advertising noticed.
-!
-! Leave working rules alone.
+! No intrusive behavior currently observed.
+! Freeze.
 
 
 ! =====================================================
 ! SUCCESS CRITERION
 ! =====================================================
 
-! A filter is successful only when:
+! Success means:
 !
-! 1. unwanted behavior disappears
-!
+! unwanted behavior gone
 ! AND
-!
-! 2. normal page/video behavior continues to work.
-!
-! High blocked-request counts are NOT themselves success.
+! normal site behavior intact.
