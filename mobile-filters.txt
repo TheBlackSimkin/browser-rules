@@ -1,27 +1,23 @@
 [Adblock Plus 2.0]
 ! Title: A - TBS - Personal Mobile Filters
 ! Description: Conservative mobile filtering rules for Vivaldi Android.
-! Version: 20260811.4
+! Version: 20260811.6
 ! Last modified: 2026-08-11
 ! Expires: 1 day
 !
-! Design rules:
-! - Mobile only.
-! - Preserve normal playback, controls and previews.
-! - NO generic MP4/media blocking.
-! - NO broad JavaScript blocking.
-! - Prefer narrow site-specific rules.
+! Mobile only.
+! Preserve thumbnails, previews, playback and controls.
+! No generic MP4/media blocking.
+! No broad JavaScript blocking.
 !
-! 20260811.4:
-! - Keep successful .3 exoJsPop101 intervention.
-! - Replace uBO-style MP4 redirect experiment with the
-!   exact ABP/EasyList blank-mp4 rewrite syntax.
-! - Add current upstream nowoif popup protection.
-! - Add targeted same-tab navigation protection for
-!   known unwanted destination names.
-! - Strengthen whole-document fallback blocking.
-!
-! See CURRENT-STATE.MD for maintenance context.
+! 20260811.6:
+! - Freeze HH because it currently behaves correctly.
+! - Remove ineffective experimental XV scriptlets/rewrite rules.
+! - Use real-device-observed XV redirect infrastructure.
+! - Aggressively block anything identified as XVLIVECAMS.
+! - Aggressively block DSCERI after real-device observation.
+! - Do NOT touch XVideos CDN/HLS hosts.
+! - Pre/post-roll video ads remain UNSOLVED.
 
 
 ! =====================================================
@@ -29,7 +25,7 @@
 ! =====================================================
 
 ! -----------------------------------------------------
-! First-party advertising paths
+! Known first-party advertising paths
 ! -----------------------------------------------------
 
 ||xvideos.com/zoneload/
@@ -40,42 +36,17 @@
 
 
 ! -----------------------------------------------------
-! Known advertising provider
+! Known advertising providers / paths
 ! -----------------------------------------------------
 
 ||orbsrv.com^$third-party,domain=xvideos.com|xvideos2.com
-
-
-! -----------------------------------------------------
-! In-player advertising selection
-! -----------------------------------------------------
+||persrv.com^$third-party,domain=xvideos.com|xvideos2.com
 
 /vast.php?idzone=$domain=xvideos.com|xvideos2.com
 
 
 ! -----------------------------------------------------
-! Known advertising media
-! -----------------------------------------------------
-
-! IMPORTANT:
-! This does NOT block arbitrary MP4 files.
-!
-! Current EasyList specifically rewrites MP4 media from:
-!
-! aucdn.net/library/
-!
-! on XVideos to a harmless blank MP4.
-!
-! .3 used:
-! redirect=noopmp4-1s
-!
-! .4 tests the exact EasyList / ABP syntax instead.
-
-||aucdn.net/library/*.mp4$rewrite=abp-resource:blank-mp4,domain=xvideos.com|xvideos2.com
-
-
-! -----------------------------------------------------
-! Popup / popunder protection
+! Popup / popunder
 ! -----------------------------------------------------
 
 *$popup,domain=xvideos.com|xvideos2.com
@@ -83,51 +54,17 @@
 
 
 ! -----------------------------------------------------
-! Popup JavaScript protection
+! Google advertising endpoint
 ! -----------------------------------------------------
 
-! Kept from .3.
-! Real-device result:
-! first-click redirect disappeared.
+! Site-scoped.
+! DO NOT block Google/gstatic globally.
 
-xvideos.com,xvideos2.com#%#//scriptlet('abort-on-property-read', 'exoJsPop101')
-
-
-! -----------------------------------------------------
-! EXPERIMENTAL 20260811.4
-! window.open protection
-! -----------------------------------------------------
-
-! Current uBlock maintained rules use nowoif on XVideos.
-!
-! Unlike the failed .2 ShouldShow experiment, we are NOT
-! restoring that rule here.
-
-xvideos.com,xvideos2.com##+js(nowoif)
+||googleadservices.com^$third-party,domain=xvideos.com|xvideos2.com
 
 
 ! -----------------------------------------------------
-! EXPERIMENTAL 20260811.4
-! Same-tab navigation protection
-! -----------------------------------------------------
-
-! These rules are specifically intended to stop unwanted
-! navigation away from XVideos while still permitting
-! normal XVideos navigation.
-!
-! They target destination strings only.
-
-xvideos.com,xvideos2.com#%#//scriptlet('prevent-navigation', 'stripchat')
-xvideos.com,xvideos2.com#%#//scriptlet('prevent-navigation', 'strip.chat')
-
-xvideos.com,xvideos2.com#%#//scriptlet('prevent-navigation', 'jugabet')
-xvideos.com,xvideos2.com#%#//scriptlet('prevent-navigation', 'juego-bet')
-
-xvideos.com,xvideos2.com#%#//scriptlet('prevent-navigation', 'betano')
-
-
-! -----------------------------------------------------
-! Known advertising links and containers
+! Cosmetic rules
 ! -----------------------------------------------------
 
 xvideos.com,xvideos2.com##a[href*="/go.php?"][href*="&ad="]
@@ -147,44 +84,24 @@ xvideos.com,xvideos2.com##.e-banner-game
 ! GROUP B
 ! =====================================================
 
-! No new Group B experiments yet.
-! Group B remains untouched until Group A is stable.
+! HH IS CURRENTLY WORKING ACCEPTABLY.
+!
+! No intrusive advertising or redirect behavior was observed
+! during the current physical-device test.
+!
+! FREEZE this section unless an actual problem appears.
 
-
-! -----------------------------------------------------
-! Known third-party advertising / redirect endpoints
-! -----------------------------------------------------
 
 ||a.adtng.com^$third-party,domain=hentaihaven.xxx
 ||havenclick.com^$third-party,domain=hentaihaven.xxx
 ||ads-twitter.com^$third-party,domain=hentaihaven.xxx
 
-
-! -----------------------------------------------------
-! Known advertising asset path
-! -----------------------------------------------------
-
 ||cdn.pornhaven.ai/design/ads/$domain=hentaihaven.xxx
-
-
-! -----------------------------------------------------
-! Known first-party advertising component
-! -----------------------------------------------------
 
 ||hentaihaven.xxx/wp-content/plugins/script-manager/assets/js/script-manager.js$script
 
-
-! -----------------------------------------------------
-! Popup / popunder
-! -----------------------------------------------------
-
 *$popup,domain=hentaihaven.xxx
 *$popunder,domain=hentaihaven.xxx
-
-
-! -----------------------------------------------------
-! Known advertising containers
-! -----------------------------------------------------
 
 hentaihaven.xxx##iframe[src^="https://a.adtng.com/"]
 hentaihaven.xxx##.popecrazy
@@ -194,53 +111,42 @@ hentaihaven.xxx##.vrav_a_pc
 
 
 ! =====================================================
-! R1
+! R1 — JUGABET
 ! =====================================================
 
-! Known unwanted destination family.
+! Explicit known domains.
 
 ||jugabet.com^
 ||jugabet.cl^
 ||jugabet.mx^
-||play-jugabet.net^
-||juego-bet.cl^
+
+||win.jugabet.cl^
+
+! Navigation blocking.
 
 ||jugabet.com^$document
 ||jugabet.cl^$document
 ||jugabet.mx^$document
-||play-jugabet.net^$document
-||juego-bet.cl^$document
 
 ||jugabet.com^$popup
 ||jugabet.cl^$popup
 ||jugabet.mx^$popup
-||play-jugabet.net^$popup
-||juego-bet.cl^$popup
 
 ||jugabet.com^$popunder
 ||jugabet.cl^$popunder
 ||jugabet.mx^$popunder
-||play-jugabet.net^$popunder
-||juego-bet.cl^$popunder
 
+! Aggressive brand fallback.
 
-! Whole-document brand fallback.
-!
-! Unlike the old plain *jugabet* rule, $document explicitly
-! targets top-level page navigation.
+*jugabet*
 
 *jugabet*$document
-*juego-bet*$document
-
 *jugabet*$popup
-*juego-bet*$popup
-
 *jugabet*$popunder
-*juego-bet*$popunder
 
 
 ! =====================================================
-! R2
+! R2 — BETANO
 ! =====================================================
 
 ||betano.com^
@@ -259,13 +165,17 @@ hentaihaven.xxx##.vrav_a_pc
 ||betano.cl^$popunder
 ||betano.mx^$popunder
 
+! Aggressive brand fallback.
+
+*betano*
+
 *betano*$document
 *betano*$popup
 *betano*$popunder
 
 
 ! =====================================================
-! R3
+! R3 — STRIPCHAT
 ! =====================================================
 
 ||stripchat.com^
@@ -284,11 +194,136 @@ hentaihaven.xxx##.vrav_a_pc
 ||strip.chat^$popunder
 ||stripchat.global^$popunder
 
-! Whole-document brand fallback.
+! Aggressive brand fallback.
+
+*stripchat*
 
 *stripchat*$document
 *stripchat*$popup
 *stripchat*$popunder
+
+
+! =====================================================
+! R4 — XVLIVECAMS
+! =====================================================
+
+! User preference:
+!
+! AGGRESSIVELY BLOCK anything containing:
+!
+! xvlivecams
+!
+! Real-device observation included:
+!
+! xvlivecams.com
+! xvlivecamsmmcdn
+!
+! There is no desired use for this family in this project.
+
+
+! Exact known domain.
+
+||xvlivecams.com^
+
+
+! Exact navigation protection.
+
+||xvlivecams.com^$document
+||xvlivecams.com^$popup
+||xvlivecams.com^$popunder
+
+
+! Aggressive substring block.
+!
+! Intended to catch:
+!
+! xvlivecams
+! xvlivecamsmmcdn
+! cdn-xvlivecams-...
+! future URLs containing the same identifying string.
+
+*xvlivecams*
+
+
+! Explicit navigation fallbacks.
+
+*xvlivecams*$document
+*xvlivecams*$popup
+*xvlivecams*$popunder
+
+
+! =====================================================
+! R5 — DSCERI
+! =====================================================
+
+! Real-device PCAPdroid observation:
+!
+! s.dsceri.com
+!
+! Purpose could not be reliably established.
+!
+! User does not trust/want this infrastructure.
+! Treat DSCERI as unwanted.
+!
+! This block is deliberately aggressive.
+
+
+! Exact observed domain family.
+
+||dsceri.com^
+
+
+! Exact navigation protection.
+
+||dsceri.com^$document
+||dsceri.com^$popup
+||dsceri.com^$popunder
+
+
+! Aggressive substring fallback.
+!
+! Intended to catch:
+!
+! dsceri.com
+! s.dsceri.com
+! future URLs/hosts containing "dsceri".
+
+*dsceri*
+
+
+! Explicit navigation fallbacks.
+
+*dsceri*$document
+*dsceri*$popup
+*dsceri*$popunder
+
+
+! =====================================================
+! PROTECTED / DO-NOT-BLOCK INFRASTRUCTURE
+! =====================================================
+
+! Real-device PCAPdroid observation strongly indicates that
+! normal XVideos HLS playback uses:
+!
+! hls.cdn77.xvideos-cdn.com
+!
+! DO NOT BLOCK:
+!
+! xvideos-cdn.com
+! cdn77.xvideos-cdn.com
+! hls.cdn77.xvideos-cdn.com
+!
+! unless future evidence isolates a completely separate
+! advertising-only path.
+!
+!
+! Also DO NOT globally block:
+!
+! gstatic.com
+! google.com
+!
+! www.gstatic.com was observed but is normal general-purpose
+! infrastructure and is NOT classified as unwanted here.
 
 
 ! =====================================================
@@ -300,38 +335,117 @@ hentaihaven.xxx##.vrav_a_pc
 ! *.mp4$media,domain=...
 ! *.mp4$media,third-party,domain=...
 !
-! They previously endangered legitimate playback,
-! thumbnail previews and normal player behavior.
+! Those previously endangered legitimate playback,
+! previews and thumbnails.
 !
 !
-! The narrow EasyList rule:
+! DO NOT broadly block:
 !
-! ||aucdn.net/library/*.mp4$rewrite=abp-resource:blank-mp4,...
+! *.m3u8
+! *xvideos-cdn*
+! *cdn77*
 !
-! is fundamentally different because it identifies one
-! known advertising media path.
+! Normal playback currently depends on XVideos HLS/CDN
+! infrastructure.
 !
 !
 ! DO NOT block all JavaScript.
 !
-! DO NOT hide the entire player.
+! DO NOT hide the entire video player.
 !
 ! DO NOT hide broad video/media containers.
 !
 !
-! FAILED EXPERIMENT:
+! -----------------------------------------------------
+! FAILED / INEFFECTIVE EXPERIMENTS
+! -----------------------------------------------------
 !
-! 20260811.2
-! xvideos.com,xvideos2.com##+js(aeld, click, ShouldShow)
+! 20260811.2:
 !
-! On the target Vivaldi Android device this changed an
-! unwanted new-tab redirect into unwanted SAME-TAB
-! navigation.
+! ##+js(aeld, click, ShouldShow)
 !
-! Do not restore that rule by itself.
+! Result:
+! unwanted NEW-TAB navigation changed into unwanted
+! SAME-TAB navigation.
 !
 !
-! Success means BOTH:
+! 20260811.3:
 !
-! 1. unwanted behavior is gone
-! 2. normal site behavior remains intact
+! aucdn redirect=noopmp4-1s experiment
+!
+! Result:
+! pre/post-roll remained.
+!
+!
+! 20260811.4:
+!
+! ABP blank-MP4 rewrite
+! ##+js(nowoif)
+! prevent-navigation scriptlets
+! exoJsPop101 combination
+!
+! Result:
+! no meaningful improvement.
+! SAME-TAB redirects persisted.
+! Pre/post-roll persisted.
+!
+!
+! These experiments should not be restored merely because
+! they exist in upstream uBlock/AdGuard/EasyList rules.
+!
+! The target browser is Vivaldi Android 8.1.4099.79,
+! and real-device behavior takes precedence.
+
+
+! =====================================================
+! CURRENT STATUS
+! =====================================================
+
+! GROUP A:
+!
+! WORKING:
+! - thumbnails
+! - previews
+! - normal video
+! - play/pause
+! - seek/timeline
+! - volume
+! - fullscreen
+! - visible banners substantially reduced/removed
+!
+! UNSOLVED:
+! - pre-roll video advertisement
+! - post-roll video advertisement
+!
+! CURRENT EXPERIMENT:
+! - aggressively block real-device-observed redirect
+!   infrastructure:
+!
+!   JUGABET
+!   BETANO
+!   STRIPCHAT
+!   XVLIVECAMS
+!   DSCERI
+!
+!
+! GROUP B:
+!
+! Current real-device observation:
+! no intrusive advertising noticed.
+!
+! Leave working rules alone.
+
+
+! =====================================================
+! SUCCESS CRITERION
+! =====================================================
+
+! A filter is successful only when:
+!
+! 1. unwanted behavior disappears
+!
+! AND
+!
+! 2. normal page/video behavior continues to work.
+!
+! High blocked-request counts are NOT themselves success.
